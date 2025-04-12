@@ -7,8 +7,7 @@ This is the Cloud Snitch frontend.
 - Install Node
 - Run `npm install` to install dependencies
 - Run `npm run generate` to generate the API code
-- Create a .env file with `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
-- Run `npm run dev` to run the frontend against the dev API
+- Run `ENV=prod.env npm run dev` to run the dev frontend against the prod API
 
 ## Docker build
 
@@ -20,5 +19,6 @@ docker build --build-arg "OPENAPI_YAML=$(cat ../backend/api/apispec/openapi.yaml
 
 ## Handy Commands
 
+- `npm run check` - Type check the code
 - `npm run lint` - Lint the code
 - `npm run lint -- --fix` - Lint the code and automatically fix issues

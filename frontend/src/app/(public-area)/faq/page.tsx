@@ -39,11 +39,16 @@ const FAQ = [
         answer: (
             <div>
                 <p>
-                    Cloud Snitch is developed by Paragon Cybersecurity, an LLC owned by tech and security enthusiast{' '}
+                    Cloud Snitch is developed by Paragon Cybersecurity, an LLC owned by tech and security enthusiast
+                    Chris Brown. Feel free to{' '}
                     <Link href="https://www.linkedin.com/in/ccbrown1" target="_blank" className="external-link">
-                        Chris Brown
+                        connect with me on LinkedIn
                     </Link>
-                    . Feel free to connect with me on LinkedIn, or for inquiries about Cloud Snitch,{' '}
+                    or{' '}
+                    <Link href="https://github.com/ccbrown" target="_blank" className="external-link">
+                        follow me on GitHub
+                    </Link>
+                    . For inquiries about Cloud Snitch, you can also{' '}
                     <Link href="/contact" className="link">
                         contact us
                     </Link>{' '}
@@ -70,6 +75,13 @@ const FAQ = [
                     </Link>{' '}
                     we provide for setting up integrations. Once you get started, you can also use Cloud Snitch to
                     monitor Cloud Snitch itself!
+                </p>
+                <p>
+                    Still not sure?{' '}
+                    <Link href="https://github.com/ccbrown/cloud-snitch" target="_blank" className="external-link">
+                        Cloud Snitch is 100% open source
+                    </Link>
+                    , so everything is out in the open and auditable by the community.
                 </p>
             </div>
         ),
@@ -98,22 +110,6 @@ const FAQ = [
                     future, but Cloud Snitch is generally expected to complement other real-time monitoring and alerting
                     solutions by giving you additional diagnostic capabilities and insights that you can use to respond
                     to incidents or proactively identify blind spots in your monitoring.
-                </p>
-            </div>
-        ),
-    },
-    {
-        question: 'Can Cloud Snitch provide SOC 2 Type II or other compliance reports?',
-        answer: (
-            <div>
-                <p>
-                    At this time, Cloud Snitch cannot provide SOC 2 Type II, ISO 27001, or other compliance reports.
-                    However, we&apos;re happy to talk about our security measures or fill out any questionnaires you may
-                    require.{' '}
-                    <Link href="/contact" className="link">
-                        Contact us
-                    </Link>{' '}
-                    for more information.
                 </p>
             </div>
         ),
