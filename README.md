@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Cloud Snitch</h1>
+  <h1>Cloud Snitch <a href="https://github.com/ccbrown/cloud-snitch/actions"><img src="https://img.shields.io/github/actions/workflow/status/ccbrown/cloud-snitch/commit.yaml" alt="GitHub Actions Workflow Status" /></a></h1>
 
   <p>
     <a href="https://cloudsnitch.io">Get started in minutes at cloudsnitch.io.</a> 🚀
