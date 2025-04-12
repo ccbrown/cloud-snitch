@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { App, BootstraplessSynthesizer } from 'aws-cdk-lib';
+import { App } from 'aws-cdk-lib';
 
 import { Environment } from '../lib/environment';
 import { PhoneServiceStack } from '../lib/phone-service-stack';

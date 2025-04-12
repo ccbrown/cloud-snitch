@@ -1,0 +1,65 @@
+name: Commit
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.2'
+
+    - name: go generate
+      run: go generate ./...
+
+    - name: gofmt
+      run: if [ "$(gofmt -s -l $(go list -f '{{range .GoFiles}}{{$.Dir}}/{{.}} {{end}}{{range .TestGoFiles}}{{$.Dir}}/{{.}} {{end}}' ./...) | wc -l)" -gt 0 ]; then exit 1; fi
+
+    - name: go build
+      run: go build ./...
+
+    - name: go vet
+      run: go vet ./...
+
+    - name: go test
+      run: |
+        docker compose up -d
+        go test -v -race ./...
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 22
+
+    - run: npm ci
+    - run: npm run generate
+    - run: npm run lint
+    - run: npm run build
+
+  aws:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./aws
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Lint CDK
+      run: |
+        npm ci
+        npm run lint
