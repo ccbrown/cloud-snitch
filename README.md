@@ -1,4 +1,10 @@
-# [Cloud Snitch](https://cloudsnitch.io)
+<div align="center">
+  <h1>Cloud Snitch</h1>
+
+  <p>
+    <a href="https://cloudsnitch.io">Get started in minutes at cloudsnitch.io.</a> 🚀
+  </p>
+</div>
 
 ![How well do you really know your cloud?](design/readme/header.png)
 
