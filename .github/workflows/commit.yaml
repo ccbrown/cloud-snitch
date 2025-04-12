@@ -12,6 +12,8 @@ jobs:
         working-directory: ./backend
     steps:
     - uses: actions/checkout@v3
+      with:
+        lfs: true
 
     - uses: actions/setup-go@v4
       with:
