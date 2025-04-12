@@ -39,3 +39,18 @@ Take the investigation further with links into to your CloudTrail event history.
 ## Open Source or SaaS
 
 Cloud Snitch is open sourced under the MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT) so if you're feeling adventurous, you can deploy it directly to your own cloud. Alternatively, you can get up and running in under 5 minutes with an individual or team plan at [cloudsnitch.io](https://cloudsnitch.io).
+
+## Codebase
+
+This repo contains all resources for Cloud Snitch, including the backend, frontend, infrastructure, documentation, and design files. Everything is organized into the following directories:
+
+- [aws](aws): CDK code for deployment to AWS.
+- [backend](backend): The backend code and API used by the frontend.
+- [design](design): Project files, concepts, screenshots, and other materials not directly required by the codebase.
+- [frontend](frontend): The UI for the webapp.
+
+## Contributing
+
+Contributions of all sorts are welcome, but please read the [contribution guidelines](CONTRIBUTING.md) first!
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you shall be licensed under the MIT license, without any additional terms or conditions.
