@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { BackgroundAnimation, Logo } from '@/components';
+import { BackgroundAnimation, GitHubIcon, Logo } from '@/components';
 
 const headerLinks = [
     {
@@ -14,6 +14,16 @@ const headerLinks = [
     {
         label: '🤔 FAQ',
         href: '/faq',
+    },
+    {
+        label: (
+            <span>
+                <GitHubIcon className="h-[1.1rem] w-[1.1rem] mr-1 inline-block align-middle" />
+                <span className="align-middle">Open Source</span>
+            </span>
+        ),
+        href: 'https://github.com/ccbrown/cloud-snitch',
+        target: '_blank',
     },
 ];
 
@@ -36,9 +46,13 @@ export default function Layout({
                         </Link>
                     </div>
                     <ul className="flex h-full gap-12 items-center justify-center">
-                        {headerLinks.map((link) => (
-                            <li key={link.label}>
-                                <Link href={link.href} className="font-semibold hover:text-amethyst">
+                        {headerLinks.map((link, i) => (
+                            <li key={i}>
+                                <Link
+                                    href={link.href}
+                                    target={link.target}
+                                    className="font-semibold hover:text-amethyst"
+                                >
                                     {link.label}
                                 </Link>
                             </li>

@@ -90,6 +90,15 @@ const Page = () => {
                 </p>
                 <p className="text-xs">*This example excludes any applicable taxes.</p>
             </div>
+            <div className="translucent-snow p-4 rounded-lg">
+                <h2>Open Source</h2>
+                <p>
+                    <Link href="https://github.com/ccbrown/cloud-snitch" target="_blank" className="external-link">
+                        Cloud Snitch is fully open source
+                    </Link>{' '}
+                    so in addition to our SaaS offering, you have the option to deploy it yourself!
+                </p>
+            </div>
         </div>
     );
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 import { Button, ErrorMessage, SuccessMessage, TextArea, TextField } from '@/components';
@@ -43,7 +44,18 @@ export const ContactForm = () => {
         <SuccessMessage>Message submitted! We&apos;ll be in touch soon.</SuccessMessage>
     ) : (
         <>
+            <p>
+                Cloud Snitch is developed by Paragon Cybersecurity, a Limited Liability Company formed under Delaware
+                jurisdiction.
+            </p>
             <p>For inquiries, please fill out the form below and we will get back to you as soon as possible.</p>
+            <p>
+                Alternatively, you can{' '}
+                <Link href="https://github.com/ccbrown/cloud-snitch/issues" target="_blank" className="external-link">
+                    raise an issue on GitHub
+                </Link>
+                .
+            </p>
             <form className="flex flex-col gap-4">
                 {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
                 <div className="flex gap-4 w-full">
