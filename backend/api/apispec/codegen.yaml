@@ -1,0 +1,6 @@
+package: apispec
+generate:
+  gorilla-server: true
+  strict-server: true
+  models: true
+output: apispec.gen.go

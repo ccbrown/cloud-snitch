@@ -1,0 +1,8 @@
+/src/generated
+/node_modules
+Dockerfile
+.dockerignore
+.next
+README.md
+*.env*
+**/.DS_Store

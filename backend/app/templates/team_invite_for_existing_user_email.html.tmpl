@@ -1,0 +1,8 @@
+{{ define "team_invite_for_existing_user_email_content" }}
+    You've been invited to join the {{.TeamName}} team on Cloud Snitch!
+    <br /><br />
+    To accept the invite, please use the following link:
+    <br /><br />
+    <a style="color: #7e49ed;" href="{{.FrontendURL}}/teams">{{.FrontendURL}}/teams</a>
+{{ end }}
+{{- set . "content" "team_invite_for_existing_user_email_content" | render "email.html.tmpl" -}}

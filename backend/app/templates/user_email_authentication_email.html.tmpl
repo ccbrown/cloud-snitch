@@ -1,0 +1,8 @@
+{{ define "user_email_authentication_content" }}
+    To sign into your account, please use the following link:
+    <br /><br />
+    <a style="color: #7e49ed;" href="{{.FrontendURL}}/complete-email-signin#token={{.TokenBase64}}">{{.FrontendURL}}/complete-email-signin#token={{.TokenBase64}}</a>
+    <br /><br />
+    This link will be valid for one hour.
+{{ end }}
+{{- set . "content" "user_email_authentication_content" | render "email.html.tmpl" -}}

@@ -1,0 +1,10 @@
+{{ define "contact_us_email_content" }}
+    <b>Name:</b> {{.Name}}<br />
+    <b>Email Address:</b> {{.EmailAddress}}<br />
+    <b>Subject:</b> {{.Subject}}<br />
+    <br />
+    <div style="white-space: pre-wrap;">
+        {{- .Message -}}
+    </div>
+{{ end }}
+{{- set . "content" "contact_us_email_content" | render "email.html.tmpl" -}}

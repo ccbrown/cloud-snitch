@@ -1,0 +1,1820 @@
+openapi: 3.0.3
+info:
+  title: Cloud Snitch
+  version: 0.0.0
+security:
+  - api_key: []
+servers:
+  - url: http://127.0.0.1:8080
+tags:
+  - name: aws
+  - name: report
+  - name: system
+  - name: team
+  - name: user
+paths:
+  /authenticate:
+    post:
+      tags:
+        - user
+      summary: Authenticates user and returns a new access token.
+      description: This endpoint returns an access token to authenticate future requests.
+      operationId: authenticate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticateOutput'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /aws/regions:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Gets AWS regions.
+      description: Gets info about known AWS regions.
+      operationId: getAWSRegions
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AWSRegion'
+  /sign-out:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Invalidates the current access token.
+      description: Invalidates the current access token.
+      operationId: signOut
+      responses:
+        '200':
+          description: successful operation
+  /contact-us:
+    post:
+      tags:
+        - system
+      summary: Contacts us.
+      operationId: contactUs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emailAddress
+                - name
+                - subject
+                - message
+              properties:
+                emailAddress:
+                  type: string
+                name:
+                  type: string
+                subject:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+  /health-check:
+    get:
+      tags:
+        - system
+      summary: Checks the health of the API.
+      operationId: getHealthCheck
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+  /reports/{reportId}:
+    parameters:
+      - in: path
+        name: reportId
+        schema:
+          type: string
+        required: true
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - report
+      summary: Deletes a report.
+      description: Deletes the given report.
+      operationId: deleteReportById
+      responses:
+        '200':
+          description: successful operation
+  /teams:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets teams.
+      description: Gets all the teams of the service.
+      operationId: getTeams
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Creates a team.
+      description: Creates a team.
+      operationId: createTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets a team.
+      description: Gets a team.
+      operationId: getTeam
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Updates a team.
+      description: Updates an existing team.
+      operationId: updateTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/billing-profile:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets a team's billing profile.
+      description: Gets a team's billing profile.
+      operationId: getTeamBillingProfile
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamBillingProfile'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Creates a team's billing profile.
+      description: Creates a team's billing profile.
+      operationId: createTeamBillingProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamBillingProfileInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamBillingProfile'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Updates a team's billing profile.
+      description: Updates a team's billing profile.
+      operationId: updateTeamBillingProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamBillingProfileInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamBillingProfile'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/payment-method:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets a team's payment method.
+      description: Gets a team's payment method.
+      operationId: getTeamPaymentMethod
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPaymentMethod'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    put:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Sets a team's payment method.
+      description: Sets a team's payment method.
+      operationId: putTeamPaymentMethod
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutTeamPaymentMethodInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPaymentMethod'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/subscription:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets a team's subscription.
+      description: Gets a team's subscription.
+      operationId: getTeamSubscription
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamSubscription'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Creates a team's subscription.
+      description: Creates a team's subscription.
+      operationId: createTeamSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamSubscriptionInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamSubscription'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Updates a team's subscription.
+      description: Updates a team's subscription.
+      operationId: updateTeamSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamSubscriptionInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamSubscription'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/invites:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets team invites.
+      description: Gets invites for the given team.
+      operationId: getTeamInvitesByTeamId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamInvite'
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Creates a team invite.
+      description: Creates an invite for the given team.
+      operationId: createTeamInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamInviteInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+  /teams/{teamId}/join:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Joins the team.
+      description: Joins the given team.
+      operationId: joinTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMembership'
+  /teams/{teamId}/invites/{emailAddress}:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: emailAddress
+        schema:
+          type: string
+        required: true
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Deletes an invite.
+      description: Deletes an invite for the given team.
+      operationId: deleteTeamInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+  /teams/{teamId}/aws-accounts:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Gets team AWS account information.
+      description: Gets AWS account information for the given team.
+      operationId: getAWSAccountsByTeamId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AWSAccount'
+  /teams/{teamId}/aws-integrations:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Gets team AWS integrations.
+      description: Gets AWS integrations for the given team.
+      operationId: getAWSIntegrationsByTeamId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AWSIntegration'
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Creates a team AWS integration.
+      description: Creates an AWS integration for the given team.
+      operationId: createAWSIntegration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAWSIntegrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AWSIntegration'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/reports:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets team reports.
+      description: Gets reports for the given team.
+      operationId: getReportsByTeamId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+  /aws-integrations/{integrationId}:
+    parameters:
+      - in: path
+        name: integrationId
+        schema:
+          type: string
+        required: true
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Updates an AWS integration.
+      description: Updates an AWS integration.
+      operationId: updateAWSIntegration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAWSIntegrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AWSIntegration'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Deletes an AWS integration.
+      description: Deletes an AWS integration.
+      operationId: deleteAWSIntegration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAWSIntegrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /aws-integrations/{integrationId}/queue-report-generation:
+    parameters:
+      - in: path
+        name: integrationId
+        schema:
+          type: string
+        required: true
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Queues report generation.
+      description: Queues report generation for the given AWS integration.
+      operationId: queueAWSIntegrationReportGeneration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueAWSIntegrationReportGenerationInput'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/queue-report-generation:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Queues report generation.
+      description: Queues report generation for the given team.
+      operationId: queueTeamReportGeneration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueTeamReportGenerationInput'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/memberships:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets team memberships.
+      description: Gets memberships for the given team.
+      operationId: getTeamMembershipsByTeamId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamTeamMembership'
+  /teams/{teamId}/memberships/{userId}:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Deletes a membership.
+      description: Deletes a membership for the given team.
+      operationId: deleteTeamMembership
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Updates a team membership.
+      description: Updates an existing team membership.
+      operationId: updateTeamMembership
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamMembershipInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMembership'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/principal-settings/{principalKey}:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: principalKey
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets a team's principal settings.
+      description: Gets a team's principal settings or returns default settings.
+      operationId: getTeamPrincipalSettings
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPrincipalSettings'
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Updates a team's principal settings.
+      description: Updates team principal settings.
+      operationId: updateTeamPrincipalSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamPrincipalSettingsInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPrincipalSettings'
+  /users:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Gets users.
+      description: Gets all the users of the service.
+      operationId: getUsers
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/begin-registration:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Registers a user.
+      description: Registers a new user.
+      operationId: beginUserRegistration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeginUserRegistrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /users/begin-email-authentication:
+    post:
+      tags:
+        - user
+      summary: Authenticates a user via email.
+      description: Authenticates a user via email.
+      operationId: beginUserEmailAuthentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeginUserEmailAuthenticationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /users/complete-registration:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Registers a user.
+      description: Registers a new user.
+      operationId: completeUserRegistration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteUserRegistrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteUserRegistrationOutput'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /users/{userId}:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Gets a user.
+      description: Gets a user.
+      operationId: getUser
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Updates a user.
+      description: Updates an existing user.
+      operationId: updateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /users/{userId}/passkeys:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Gets user passkeys.
+      description: Gets all the passkeys that the user has registered.
+      operationId: getUserPasskeys
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPasskey'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /user-passkeys/{passkeyId}:
+    parameters:
+      - in: path
+        name: passkeyId
+        schema:
+          type: string
+        required: true
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Updates a user's passkey.
+      description: Updates a user's passkey.
+      operationId: updateUserPasskeyById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserPasskeyInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPasskey'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Deletes a user's passkey.
+      description: Deletes a user's passkey.
+      operationId: deleteUserPasskeyById
+      responses:
+        '200':
+          description: successful operation
+  /users/{userId}/begin-passkey-registration:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Initiates passkey registration for the user.
+      description: Initiates passkey registration for the user.
+      operationId: beginUserPasskeyRegistration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeginUserPasskeyRegistrationOutput'
+  /users/{userId}/complete-passkey-registration:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      summary: Completes passkey registration for the user.
+      description: Completes passkey registration for the user.
+      operationId: completeUserPasskeyRegistration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteUserPasskeyRegistrationInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPasskey'
+  /users/{userId}/team-invites:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets team invites.
+      description: Gets invites for the given user.
+      operationId: getTeamInvitesByUserId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserTeamInvite'
+  /users/{userId}/team-memberships:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - team
+      summary: Gets team memberships.
+      description: Gets memberships for the given user.
+      operationId: getTeamMembershipsByUserId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserTeamMembership'
+  /users/begin-passkey-authentication:
+    post:
+      tags:
+        - user
+      summary: Initiates passkey authentication for the user.
+      description: Initiates passkey authentication for the user.
+      operationId: beginUserPasskeyAuthentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeginUserPasskeyAuthenticationOutput'
+components:
+  responses:
+    ErrorResponse:
+      # See: https://github.com/OAI/OpenAPI-Specification/issues/563
+      description: The response when an error is encountered.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    AuthenticateOutput:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+          description: The token that should be used to authenticate for future requests.
+        user:
+          $ref: '#/components/schemas/User'
+    AWSAccount:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    AWSIntegration:
+      type: object
+      required:
+        - id
+        - creationTime
+        - name
+        - teamId
+        - roleArn
+        - getAccountNamesFromOrganizations
+      properties:
+        id:
+          type: string
+        creationTime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        teamId:
+          type: string
+        roleArn:
+          type: string
+        getAccountNamesFromOrganizations:
+          type: boolean
+        cloudtrailTrail:
+          $ref: '#/components/schemas/AWSIntegrationCloudTrailTrail'
+    AWSIntegrationCloudTrailTrail:
+      type: object
+      required:
+        - s3BucketName
+      properties:
+        s3BucketName:
+          type: string
+        s3KeyPrefix:
+          type: string
+    AWSRegion:
+      type: object
+      required:
+        - id
+        - name
+        - geolocationCountry
+        - geolocationRegion
+        - partition
+        - latitude
+        - longitude
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        geolocationCountry:
+          type: string
+        geolocationRegion:
+          type: string
+        partition:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+    CreateAWSIntegrationInput:
+      type: object
+      required:
+        - name
+        - roleArn
+      properties:
+        name:
+          type: string
+        roleArn:
+          type: string
+        getAccountNamesFromOrganizations:
+          type: boolean
+        cloudtrailTrail:
+          $ref: '#/components/schemas/CreateAWSIntegrationCloudTrailTrailInput'
+        queueReportGeneration:
+          type: boolean
+    CreateAWSIntegrationCloudTrailTrailInput:
+      type: object
+      required:
+        - s3BucketName
+      properties:
+        s3BucketName:
+          type: string
+        s3KeyPrefix:
+          type: string
+    UpdateAWSIntegrationInput:
+      type: object
+      properties:
+        name:
+          type: string
+    DeleteAWSIntegrationInput:
+      type: object
+      properties:
+        deleteAssociatedData:
+          type: boolean
+    BeginUserEmailAuthenticationInput:
+      type: object
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+    BeginUserRegistrationInput:
+      type: object
+      required:
+        - emailAddress
+        - termsOfServiceAgreementRevision
+        - privacyPolicyAgreementRevision
+        - cookiePolicyAgreementRevision
+      properties:
+        emailAddress:
+          type: string
+        termsOfServiceAgreementRevision:
+          type: string
+        privacyPolicyAgreementRevision:
+          type: string
+        cookiePolicyAgreementRevision:
+          type: string
+    CompleteUserRegistrationInput:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+    CompleteUserRegistrationOutput:
+      type: object
+      required:
+        - accessToken
+        - user
+      properties:
+        accessToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    QueueAWSIntegrationReportGenerationInput:
+      type: object
+      required:
+        - startTime
+        - durationSeconds
+        - retention
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        durationSeconds:
+          type: integer
+        retention:
+          $ref: '#/components/schemas/ReportRetention'
+    QueueTeamReportGenerationInput:
+      type: object
+      required:
+        - startTime
+        - durationSeconds
+        - retention
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        durationSeconds:
+          type: integer
+        retention:
+          $ref: '#/components/schemas/ReportRetention'
+    Team:
+      type: object
+      required:
+        - id
+        - name
+        - entitlements
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        entitlements:
+          $ref: '#/components/schemas/TeamEntitlements'
+    TeamEntitlements:
+      type: object
+      required:
+        - individualFeatures
+        - teamFeatures
+      properties:
+        individualFeatures:
+          type: boolean
+        teamFeatures:
+          type: boolean
+    CreateTeamInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    UpdateTeamInput:
+      type: object
+      properties:
+        name:
+          type: string
+    UpdateTeamMembershipInput:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/TeamMembershipRole'
+    TeamMembership:
+      type: object
+      required:
+        - userId
+        - teamId
+        - role
+      properties:
+        userId:
+          type: string
+        teamId:
+          type: string
+        role:
+          $ref: '#/components/schemas/TeamMembershipRole'
+    TeamTeamMembership:
+      type: object
+      required:
+        - user
+        - membership
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        membership:
+          $ref: '#/components/schemas/TeamMembership'
+    UserTeamMembership:
+      type: object
+      required:
+        - team
+        - membership
+      properties:
+        team:
+          $ref: '#/components/schemas/Team'
+        membership:
+          $ref: '#/components/schemas/TeamMembership'
+    TeamInvite:
+      type: object
+      required:
+        - emailAddress
+        - teamId
+        - senderId
+        - role
+      properties:
+        emailAddress:
+          type: string
+        teamId:
+          type: string
+        senderId:
+          type: string
+        role:
+          $ref: '#/components/schemas/TeamMembershipRole'
+    UserTeamInvite:
+      type: object
+      required:
+        - team
+        - sender
+        - invite
+      properties:
+        team:
+          $ref: '#/components/schemas/Team'
+        sender:
+          $ref: '#/components/schemas/User'
+        invite:
+          $ref: '#/components/schemas/TeamInvite'
+    CreateTeamInviteInput:
+      type: object
+      required:
+        - emailAddress
+        - role
+      properties:
+        emailAddress:
+          type: string
+        role:
+          $ref: '#/components/schemas/TeamMembershipRole'
+    TeamMembershipRole:
+      type: string
+      enum:
+        - ADMINISTRATOR
+        - MEMBER
+    TeamSubscriptionTier:
+      type: string
+      enum:
+        - INDIVIDUAL
+        - TEAM
+    User:
+      type: object
+      required:
+        - id
+        - emailAddress
+      properties:
+        id:
+          type: string
+        emailAddress:
+          type: string
+        hasPassword:
+          type: boolean
+          description: Whether the user has a password set. Only guaranteed to be accurate if the user is the current user or an admin.
+        role:
+          $ref: '#/components/schemas/UserRole'
+        termsOfServiceAgreement:
+          $ref: '#/components/schemas/UserAgreement'
+        privacyPolicyAgreement:
+          $ref: '#/components/schemas/UserAgreement'
+        cookiePolicyAgreement:
+          $ref: '#/components/schemas/UserAgreement'
+    UserCredentials:
+      oneOf:
+        - $ref: '#/components/schemas/UserEmailAddressAndPasswordCredentials'
+        - $ref: '#/components/schemas/UserPasskeyCredentials'
+        - $ref: '#/components/schemas/UserEmailCredentials'
+    UserEmailAddressAndPasswordCredentials:
+      type: object
+      required:
+        - emailAddress
+        - password
+      properties:
+        emailAddress:
+          type: string
+        password:
+          type: string
+    UserPasskeyCredentials:
+      type: object
+      required:
+        - sessionId
+        - credentialAssertionResponse
+      properties:
+        sessionId:
+          type: string
+        credentialAssertionResponse:
+          description: The credential creation data as specified by [§5.1. PublicKeyCredential Interface](https://www.w3.org/TR/webauthn/#iface-pkcredential).
+    UserEmailCredentials:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+    UserPasskey:
+      type: object
+      required:
+        - id
+        - name
+        - creationTime
+        - userId
+      properties:
+        id:
+          type: string
+        creationTime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        userId:
+          type: string
+    UpdateUserPasskeyInput:
+      type: object
+      properties:
+        name:
+          type: string
+    BeginUserPasskeyRegistrationOutput:
+      type: object
+      required:
+        - sessionId
+        - credentialCreationOptions
+      properties:
+        sessionId:
+          type: string
+        credentialCreationOptions:
+          description: Options as specified by [§5.4. Options for Credential Creation](https://www.w3.org/TR/webauthn/#dictionary-makecredentialoptions).
+    CompleteUserPasskeyRegistrationInput:
+      type: object
+      required:
+        - sessionId
+        - passkeyName
+        - credentialCreationResponse
+      properties:
+        sessionId:
+          type: string
+        passkeyName:
+          type: string
+        credentialCreationResponse:
+          description: The credential creation data as specified by [§5.1. PublicKeyCredential Interface](https://www.w3.org/TR/webauthn/#iface-pkcredential).
+    BeginUserPasskeyAuthenticationOutput:
+      type: object
+      required:
+        - sessionId
+        - credentialAssertionOptions
+      properties:
+        sessionId:
+          type: string
+        credentialAssertionOptions:
+          description: Options as specified by [§5.5. Options for Assertion Generation](https://www.w3.org/TR/webauthn/#dictionary-assertion-options).
+    CompleteUserPasswordResetInput:
+      type: object
+      required:
+        - token
+        - newPassword
+      properties:
+        token:
+          type: string
+          description: Registration token that was sent via email when the user was created.
+        newPassword:
+          type: string
+    Report:
+      type: object
+      required:
+        - id
+        - teamId
+        - awsIntegrationId
+        - scope
+        - size
+        - sourceBytes
+        - generationDurationSeconds
+        - downloadUrl
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+        awsIntegrationId:
+          type: string
+        scope:
+          $ref: '#/components/schemas/ReportScope'
+        size:
+          type: integer
+        sourceBytes:
+          type: integer
+        isIncomplete:
+          type: boolean
+        generationDurationSeconds:
+          type: integer
+        downloadUrl:
+          type: string
+    ReportRetention:
+      type: string
+      enum:
+        - ONE_WEEK
+        - TWO_WEEKS
+    ReportScope:
+      type: object
+      required:
+        - startTime
+        - durationSeconds
+        - aws
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        durationSeconds:
+          type: integer
+        aws:
+          $ref: '#/components/schemas/ReportScopeAWS'
+    ReportScopeAWS:
+      type: object
+      required:
+        - accountId
+        - region
+      properties:
+        accountId:
+          type: string
+        region:
+          type: string
+    TeamBillingAddress:
+      type: object
+      required:
+        - postalCode
+        - country
+      properties:
+        line1:
+          type: string
+        line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+    TeamBillingProfile:
+      type: object
+      required:
+        - address
+        - name
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/TeamBillingAddress'
+        balance:
+          $ref: '#/components/schemas/CurrencyAmount'
+    PutTeamPaymentMethodInput:
+      type: object
+      required:
+        - stripePaymentMethodId
+      properties:
+        stripePaymentMethodId:
+          type: string
+    TeamPaymentMethod:
+      oneOf:
+        - $ref: '#/components/schemas/TeamPaymentMethodCard'
+        - $ref: '#/components/schemas/TeamPaymentMethodUSBankAccount'
+        - $ref: '#/components/schemas/TeamPaymentMethodOther'
+      discriminator:
+        propertyName: type
+        mapping:
+          CARD: '#/components/schemas/TeamPaymentMethodCard'
+          US_BANK_ACCOUNT: '#/components/schemas/TeamPaymentMethodUSBankAccount'
+          OTHER: '#/components/schemas/TeamPaymentMethodOther'
+    TeamPaymentMethodCard:
+      type: object
+      required:
+        - type
+        - last4Digits
+        - expirationYear
+        - expirationMonth
+      properties:
+        type:
+          type: string
+        last4Digits:
+          type: string
+        expirationYear:
+          type: integer
+        expirationMonth:
+          type: integer
+    TeamPaymentMethodUSBankAccount:
+      type: object
+      required:
+        - type
+        - last4Digits
+      properties:
+        type:
+          type: string
+        last4Digits:
+          type: string
+    TeamPaymentMethodOther:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+    TeamSubscription:
+      type: object
+      required:
+        - name
+        - accounts
+      properties:
+        name:
+          type: string
+        accounts:
+          type: number
+        price:
+          $ref: '#/components/schemas/TeamSubscriptionPrice'
+    TeamSubscriptionPrice:
+      type: object
+      properties:
+        accountMonth:
+          $ref: '#/components/schemas/CurrencyAmount'
+    TeamPrincipalSettings:
+      type: object
+      properties:
+        description:
+          type: string
+    UpdateTeamPrincipalSettingsInput:
+      type: object
+      properties:
+        description:
+          type: string
+    CurrencyAmount:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+    CreateTeamBillingProfileInput:
+      type: object
+      required:
+        - name
+        - address
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/TeamBillingAddress'
+    UpdateTeamBillingProfileInput:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/TeamBillingAddress'
+    CreateTeamSubscriptionInput:
+      type: object
+      required:
+        - tier
+      properties:
+        tier:
+          $ref: '#/components/schemas/TeamSubscriptionTier'
+    UpdateTeamSubscriptionInput:
+      type: object
+      properties:
+        tier:
+          $ref: '#/components/schemas/TeamSubscriptionTier'
+    UpdateUserInput:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        password:
+          type: string
+        termsOfServiceAgreementRevision:
+          type: string
+        privacyPolicyAgreementRevision:
+          type: string
+        cookiePolicyAgreementRevision:
+          type: string
+    UserAgreement:
+      type: object
+      required:
+        - revision
+      properties:
+        revision:
+          type: string
+    UserRole:
+      type: string
+      enum:
+        - ADMINISTRATOR
+        - CUSTOMER
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

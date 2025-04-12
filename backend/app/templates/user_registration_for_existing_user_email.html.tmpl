@@ -1,0 +1,8 @@
+{{ define "user_registration_for_existing_email_content" }}
+    Hi!
+    <br /><br />
+    An attempt was made to register a user for this email address, but an account already exists. If you've lost access to your account, you can use the following link to contact support:
+    <br /><br />
+    <a style="color: #7e49ed;" href="{{.FrontendURL}}/contact">{{.FrontendURL}}/contact</a>
+{{ end }}
+{{- set . "content" "user_registration_for_existing_email_content" | render "email.html.tmpl" -}}

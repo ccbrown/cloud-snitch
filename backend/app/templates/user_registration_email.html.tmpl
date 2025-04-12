@@ -1,0 +1,8 @@
+{{ define "user_registration_content" }}
+    Welcome!
+    <br /><br />
+    To complete registration, please use the following link:
+    <br /><br />
+    <a style="color: #7e49ed;" href="{{.FrontendURL}}/complete-registration#token={{.TokenBase64}}">{{.FrontendURL}}/complete-registration#token={{.TokenBase64}}</a>
+{{ end }}
+{{- set . "content" "user_registration_content" | render "email.html.tmpl" -}}

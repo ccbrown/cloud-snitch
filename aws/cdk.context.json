@@ -1,0 +1,21 @@
+{
+  "acknowledged-issue-numbers": [
+    32775
+  ],
+  "hosted-zone:account=774305579662:domainName=cloud-snitch.ccbrown.dev:region=us-east-1": {
+    "Id": "/hostedzone/Z05204172G6XEYXWIX0R1",
+    "Name": "cloud-snitch.ccbrown.dev."
+  },
+  "hosted-zone:account=774305579662:domainName=cloud-snitch.ccbrown.dev:region=us-west-2": {
+    "Id": "/hostedzone/Z05204172G6XEYXWIX0R1",
+    "Name": "cloud-snitch.ccbrown.dev."
+  },
+  "hosted-zone:account=449678530274:domainName=cloudsnitch.io:region=us-east-1": {
+    "Id": "/hostedzone/Z10364031WEQFRSCAHAVI",
+    "Name": "cloudsnitch.io."
+  },
+  "hosted-zone:account=449678530274:domainName=cloudsnitch.io:region=us-west-2": {
+    "Id": "/hostedzone/Z10364031WEQFRSCAHAVI",
+    "Name": "cloudsnitch.io."
+  }
+}

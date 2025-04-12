@@ -1,0 +1,4 @@
+/Dockerfile
+/.dockerignore
+/config*.yaml
+*.gen.go
