@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/ccbrown/cloud-snitch/backend/geoip"
+	"github.com/ccbrown/go-geoip"
 )
 
 type AWSCloudTrailLog struct {

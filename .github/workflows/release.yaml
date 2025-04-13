@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v3
-        with:
-          lfs: true
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -17,8 +17,6 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v3
-        with:
-          lfs: true
       - name: Turnstyle
         uses: softprops/turnstyle@v1
         env:
