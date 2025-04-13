@@ -8,7 +8,7 @@ jobs:
     uses: ./.github/workflows/test.yaml
   deploy_dev:
     needs:
-      - tests
+      - test
     permissions:
       id-token: write
       contents: read
