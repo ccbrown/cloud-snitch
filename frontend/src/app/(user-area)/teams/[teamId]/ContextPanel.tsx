@@ -198,6 +198,13 @@ const NetworkContext = ({ cidr, combinedReport }: NetworkContextProps) => {
                     )}
                 </div>
             )}
+            <p className="mt-4 text-xs text-right opacity-50 hover:opacity-100 transition-opacity duration-200">
+                IP geolocation data by{' '}
+                <Link href="https://db-ip.com" target="_blank" rel="noopener noreferrer" className="external-link">
+                    DB-IP
+                </Link>
+                .
+            </p>
         </div>
     );
 };
