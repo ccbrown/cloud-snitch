@@ -4,6 +4,14 @@
 
 The only dependency of the backend is Go. You can install the latest version from [here](https://go.dev/).
 
+## Code Generation
+
+The API package uses code generation to create the API boilerplate from an OpenAPI spec. Before building or testing, you'll need to run:
+
+```bash
+go generate ./api/apispec
+```
+
 ## Testing
 
 To run the tests, you'll need to run a local DynamoDB server. You can do this using Docker like so:
