@@ -28,6 +28,8 @@ openssl rand -base64 32
 
 Create a Stripe account with two products: one for the individual plan and one for the team plan. The products should be associated with features granting the "individual-features" and "team-features" entitlements respectively. If you don't intend to charge for the service, you can use Stripe's test mode or assign $0.00 prices to the products. If your price should be based on the number of active AWS accounts the team is using, add a "use_account_quantity" metadata key with a value of "true" to the price.
 
+Lastly, you'll need an AWS account to deploy to. **It's strongly recommended that you use a new AWS account with no other resources in it.**
+
 ### Configuring the Environment
 
 Modify bin/aws.ts to configure an environment with all the required parameters.
