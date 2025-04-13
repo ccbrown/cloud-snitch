@@ -17,5 +17,9 @@ func NewId(namespace string) Id {
 	if _, err := rand.Read(buf); err != nil {
 		panic(err)
 	}
-	return Id(namespace + "-" + base62.EncodeToString(buf))
+	s := base62.EncodeToString(buf)
+	if len(s) > 22 {
+		s = s[:22]
+	}
+	return Id(namespace + "-" + s)
 }
