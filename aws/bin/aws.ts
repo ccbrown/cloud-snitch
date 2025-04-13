@@ -2,6 +2,7 @@
 import { App } from 'aws-cdk-lib';
 
 import { Environment } from '../lib/environment';
+import { GithubActionsStack } from '../lib/github-actions-stack';
 import { PhoneServiceStack } from '../lib/phone-service-stack';
 
 const app = new App();
@@ -65,4 +66,14 @@ new PhoneServiceStack(app, 'phone-service', {
         region: 'us-east-1',
     },
     stackName: 'cloud-snitch-phone-service',
+});
+
+new GithubActionsStack(app, 'github-actions-dev', {
+    branch: 'main',
+    repo: 'ccbrown/cloud-snitch',
+    env: {
+        account: '774305579662',
+        region: 'us-east-1',
+    },
+    stackName: 'cloud-snitch-github-actions',
 });

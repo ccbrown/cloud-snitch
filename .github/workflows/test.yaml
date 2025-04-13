@@ -1,9 +1,6 @@
-name: Commit
+name: Test
 on:
-  pull_request: {}
-  push:
-    branches:
-      - main
+  workflow_call: {}
 jobs:
   backend:
     runs-on: ubuntu-latest

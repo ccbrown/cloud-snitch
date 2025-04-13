@@ -4,7 +4,7 @@ This directory contains a production-ready AWS deployment for Cloud Snitch. It f
 
 - Zero-downtime deployments - Deployments happen without disrupting user activity. Users get the latest version of the app whenever they refresh.
 - An active-active multi-region architecture - Critical functionality is uninterrupted by full region outages.
-- Scaling to (near) zero – An idle deployment costs ~$2/month.
+- Scaling to (near) zero – An idle deployment costs just a few dollars a month.
 - One-line deployments – Deployments are as simple as running a command like `npx cdk deploy '*-dev'`. The CDK does all the heavy lifting.
 
 ## Deploying for the First Time

@@ -1,6 +1,9 @@
 import { aws_connect as connect, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+// This stack sets up an Amazon Connect instance with a phone number. Stripe requires a phone
+// number even though it's not actually used for anything. We don't actually provide phone support
+// at the moment, but we can use this number for Stripe.
 export class PhoneServiceStack extends Stack {
     constructor(scope: Construct, id: string, props: StackProps) {
         super(scope, id, props);
@@ -20,7 +23,6 @@ export class PhoneServiceStack extends Stack {
             type: 'DID',
         });
 
-        // The advertised support method is through our website, and we just need a phone number to sign up for Stripe.
         // TODO: Accept calls? Currently callers just hear a busy signal and get disconnected.
     }
 }
