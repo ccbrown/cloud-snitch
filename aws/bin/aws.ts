@@ -69,10 +69,20 @@ new PhoneServiceStack(app, 'phone-service', {
 });
 
 new GithubActionsStack(app, 'github-actions-dev', {
-    branch: 'main',
+    ref: 'refs/heads/main',
     repo: 'ccbrown/cloud-snitch',
     env: {
         account: '774305579662',
+        region: 'us-east-1',
+    },
+    stackName: 'cloud-snitch-github-actions',
+});
+
+new GithubActionsStack(app, 'github-actions-prod', {
+    ref: 'refs/tags/*',
+    repo: 'ccbrown/cloud-snitch',
+    env: {
+        account: '449678530274',
         region: 'us-east-1',
     },
     stackName: 'cloud-snitch-github-actions',

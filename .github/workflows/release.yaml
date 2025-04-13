@@ -1,0 +1,49 @@
+name: Release
+on:
+  release:
+    types: [published]
+jobs:
+  deploy_prod:
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+      deployments: write
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::449678530274:role/cloud-snitch-github-actio-GithubActionsRoleF5CC769F-VzxpMS3XfQyG
+          aws-region: us-east-1
+      - name: Create GitHub deployment
+        uses: chrnorm/deployment-action@releases/v1
+        id: deployment
+        with:
+          token: "${{ github.token }}"
+          environment: prod
+      - name: NPM Install
+        working-directory: aws
+        run: npm ci
+      - name: Deploy
+        working-directory: aws
+        run: |
+          npx aws-cdk deploy '*-prod' --require-approval never
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: "${{ github.token }}"
+          environment_url: https://cloudsnitch.io
+          state: "success"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: "${{ github.token }}"
+          state: "failure"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
