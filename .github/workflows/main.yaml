@@ -14,6 +14,7 @@ jobs:
       contents: read
       actions: read
       deployments: write
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
