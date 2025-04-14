@@ -17,8 +17,8 @@ const Page = () => {
                         <span className="text-amethyst-gradient">Explore Activity</span> 🗺️
                     </h1>
                     <p>
-                        Cloud Snitch gives you a comprehensive look at your AWS account activity in sleek and intuitive
-                        map view.
+                        Cloud Snitch gives you a comprehensive look at your AWS account activity in a sleek and
+                        intuitive map view.
                     </p>
                     <p>
                         With Cloud Snitch, there&apos;s no excuse for not knowing everything your AWS accounts are up

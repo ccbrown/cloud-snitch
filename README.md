@@ -16,15 +16,11 @@ Cloud Snitch provides a sleek and intuitive way of exploring your AWS account ac
 
 ![Explore](design/readme/explore.png)
 
-Cloud Snitch gives you a comprehensive look at your AWS account activity in sleek and intuitive map view.
-
 With Cloud Snitch, there's no excuse for not knowing everything your AWS accounts are up to.
 
 ![Collaborate](design/readme/collaborate.png)
 
-Invite your teammates to let them explore your AWS activity with you.
-
-Share links to IP address, CIDR network, and AWS principal activity.
+Share links to IP address, CIDR network, and AWS principal activity within your team.
 
 Document AWS principals with Markdown notes for your teammates.
 
@@ -34,7 +30,7 @@ Cloud Snitch provides summaries of activity by AWS region, principal, IP address
 
 Errors are highlighted, so you can quickly spot suspicious behavior or bugs in your code.
 
-Take the investigation further with links into to your CloudTrail event history.
+Take the investigation further with quick links into to your CloudTrail event history.
 
 ## Open Source or SaaS
 
