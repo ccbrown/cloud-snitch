@@ -47,7 +47,7 @@ const Page = () => {
                     </div>
                 </div>
             </MascotBox>
-            <div className="flex gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1 flex flex-col bg-english-violet text-snow rounded-lg p-4">
                     <h2>
                         <Link href="/features" className="text-snow cursor-pointer">

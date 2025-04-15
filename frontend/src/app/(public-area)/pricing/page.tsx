@@ -19,7 +19,7 @@ const Page = () => {
                     have, so your costs are predictable and easy to understand.
                 </p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
                 <IndividualSubscriptionBox />
                 <TeamSubscriptionBox />
                 <div className="flex-1 flex flex-col bg-dark-purple outline-1 outline-white/20 text-snow p-4 rounded-lg">

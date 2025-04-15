@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const Page = () => {
     return (
         <div className="flex flex-col gap-4 [&_p]:my-4">
-            <div className="translucent-snow p-4 rounded-lg grid grid-flow-col auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
                 <div className="pr-8">
                     <h1>
                         <span className="text-amethyst-gradient">Explore Activity</span> 🗺️
@@ -35,7 +35,15 @@ const Page = () => {
                     />
                 </div>
             </div>
-            <div className="translucent-snow p-4 rounded-lg grid grid-flow-col auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
+                <div className="pr-8">
+                    <h1>
+                        <span className="text-light-coral-gradient">Collaborate With Teammates</span> 🤝
+                    </h1>
+                    <p>Invite your teammates to let them explore your AWS activity with you.</p>
+                    <p>Share links to IP address, CIDR network, and AWS principal activity.</p>
+                    <p>Document AWS principals with Markdown notes for your teammates.</p>
+                </div>
                 <div>
                     <Image
                         src="/images/collaborate.png"
@@ -45,16 +53,8 @@ const Page = () => {
                         className="rounded-lg border-1 border-platinum"
                     />
                 </div>
-                <div className="pl-8">
-                    <h1>
-                        <span className="text-light-coral-gradient">Collaborate With Teammates</span> 🤝
-                    </h1>
-                    <p>Invite your teammates to let them explore your AWS activity with you.</p>
-                    <p>Share links to IP address, CIDR network, and AWS principal activity.</p>
-                    <p>Document AWS principals with Markdown notes for your teammates.</p>
-                </div>
             </div>
-            <div className="translucent-snow p-4 rounded-lg grid grid-flow-col auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
                 <div className="pr-8">
                     <h1>
                         <span className="text-amethyst-gradient">Expose Bugs and Suspicious Behavior</span> 👾
