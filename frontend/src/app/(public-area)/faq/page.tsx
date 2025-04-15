@@ -161,7 +161,7 @@ const slug = (question: string) => {
 const Page = () => {
     return (
         <div className="flex flex-col gap-4 [&_p]:my-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
                 <div className="translucent-snow p-4 rounded-lg">
                     <h1>Frequently Asked Questions</h1>
                     <p>Here you can find answers to all of the most common questions about Cloud Snitch.</p>

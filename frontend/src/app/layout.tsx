@@ -29,7 +29,7 @@ export default function Layout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-w-5xl`}>
+            <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased lg:min-w-5xl`}>
                 <Providers>{children}</Providers>
             </body>
         </html>
