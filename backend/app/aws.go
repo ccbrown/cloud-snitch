@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 
@@ -56,6 +57,10 @@ func (LiveAmazonS3APIFactory) GetBucketRegion(ctx context.Context, bucketName st
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if _, err := io.Copy(io.Discard, resp.Body); err != nil {
 		return "", err
 	}
 	if region := resp.Header.Get("x-amz-bucket-region"); region != "" {
