@@ -13,6 +13,8 @@ func (r ReportRetention) Duration() time.Duration {
 	switch r {
 	case ReportRetentionOneWeek:
 		return 7 * 24 * time.Hour
+	case ReportRetentionTwoWeeks:
+		return 14 * 24 * time.Hour
 	default:
 		panic("invalid report retention")
 	}
