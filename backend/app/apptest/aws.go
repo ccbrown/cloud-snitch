@@ -37,12 +37,7 @@ var bucketPaths = map[string]string{
 	"aws-cloudtrail-logs": "report/testdata/aws-cloudtrail-logs",
 }
 
-type TestAmazonS3API struct {
-}
-
-func (api *TestAmazonS3API) GetBucketLocation(ctx context.Context, params *s3.GetBucketLocationInput, optFns ...func(*s3.Options)) (*s3.GetBucketLocationOutput, error) {
-	return &s3.GetBucketLocationOutput{}, nil
-}
+type TestAmazonS3API struct{}
 
 func (api *TestAmazonS3API) HeadObject(ctx context.Context, params *s3.HeadObjectInput, optFns ...func(*s3.Options)) (*s3.HeadObjectOutput, error) {
 	return &s3.HeadObjectOutput{}, nil
@@ -123,7 +118,11 @@ func (api *TestAmazonS3API) ListObjectsV2(ctx context.Context, params *s3.ListOb
 
 type TestAmazonS3APIFactory struct{}
 
-func (f TestAmazonS3APIFactory) NewFromSTSCredentials(ctx context.Context, credentials *ststypes.Credentials) (app.AmazonS3API, error) {
+func (TestAmazonS3APIFactory) GetBucketRegion(ctx context.Context, bucketName string) (string, error) {
+	return "us-east-1", nil
+}
+
+func (f TestAmazonS3APIFactory) NewFromSTSCredentials(ctx context.Context, credentials *ststypes.Credentials, region string) (app.AmazonS3API, error) {
 	return &TestAmazonS3API{}, nil
 }
 
