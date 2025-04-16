@@ -126,9 +126,6 @@ Resources:
                     - Action:
                           - s3:GetObject
                           - s3:ListBucket
-                          # We use the bucket location to optimize ingest. We'll ingest from the
-                          # same region if we can. Otherwise, we'll use the closest one possible.
-                          - s3:GetBucketLocation
                       Effect: Allow
                       Resource:
                           - !Sub 'arn:aws:s3:::${S3BucketName}'

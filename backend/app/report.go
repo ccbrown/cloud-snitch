@@ -171,18 +171,15 @@ func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input que
 	}
 
 	if trail := input.Integration.CloudTrailTrail; trail != nil {
-		s3Client, err := a.s3Factory.NewFromSTSCredentials(ctx, creds)
+		bucketRegion, err := a.s3Factory.GetBucketRegion(ctx, trail.S3BucketName)
+		if err != nil {
+			return fmt.Errorf("failed to get bucket region: %w", err)
+		}
+
+		s3Client, err := a.s3Factory.NewFromSTSCredentials(ctx, creds, bucketRegion)
 		if err != nil {
 			return fmt.Errorf("failed to create s3 client: %w", err)
 		}
-
-		locationOutput, err := s3Client.GetBucketLocation(ctx, &s3.GetBucketLocationInput{
-			Bucket: &trail.S3BucketName,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to get bucket location: %w", err)
-		}
-		bucketRegion := S3BucketLocationConstraintRegion(locationOutput.LocationConstraint)
 
 		accountRegions, err := report.ScanAWSCloudTrailLogBucket(ctx, report.ScanAWSCloudTrailLogBucketConfig{
 			S3:         s3Client,
@@ -213,6 +210,7 @@ func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input que
 						AccountsKeyPrefix: accountRegion.AccountsPrefix,
 						AccountId:         accountRegion.AccountId,
 						Region:            accountRegion.Region,
+						BucketRegion:      bucketRegion,
 						Retention:         input.Retention,
 						MaxSourceBytes:    input.MaxSourceBytesPerAccountRegion,
 					},
@@ -251,6 +249,7 @@ type GenerateAWSCloudTrailReportInput struct {
 	AccountsKeyPrefix string
 	AccountId         string
 	Region            string
+	BucketRegion      string
 	Retention         model.ReportRetention
 	MaxSourceBytes    int64
 }
@@ -274,7 +273,7 @@ func (a *App) GenerateAWSCloudTrailReport(ctx context.Context, input GenerateAWS
 	}
 	creds := output.Credentials
 
-	s3Client, err := a.s3Factory.NewFromSTSCredentials(ctx, creds)
+	s3Client, err := a.s3Factory.NewFromSTSCredentials(ctx, creds, input.BucketRegion)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create s3 client: %w", err)
 	}

@@ -66,19 +66,14 @@ func (s *Session) ValidateAWSIntegrationRole(ctx context.Context, input CreateAW
 
 	// Now check S3 permissions...
 	if trail := input.CloudTrailTrail; trail != nil {
-		s3Client, err := s.app.s3Factory.NewFromSTSCredentials(ctx, creds)
+		bucketRegion, err := s.app.s3Factory.GetBucketRegion(ctx, trail.S3BucketName)
 		if err != nil {
-			return s.SanitizedError(fmt.Errorf("failed to create s3 client: %w", err))
+			return NewUserError("Unable to determine bucket location. Please make sure the given bucket exists.")
 		}
 
-		// s3:GetBucketLocation
-		{
-			_, err := s3Client.GetBucketLocation(ctx, &s3.GetBucketLocationInput{
-				Bucket: aws.String(trail.S3BucketName),
-			})
-			if err != nil {
-				return NewUserError("Unable to get bucket location. Please make sure the role has permission to perform the s3:GetBucketLocation action.")
-			}
+		s3Client, err := s.app.s3Factory.NewFromSTSCredentials(ctx, creds, bucketRegion)
+		if err != nil {
+			return s.SanitizedError(fmt.Errorf("failed to create s3 client: %w", err))
 		}
 
 		// s3:ListBucket

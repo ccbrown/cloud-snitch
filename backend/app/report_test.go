@@ -40,6 +40,7 @@ func TestGenerateAWSCloudTrailReport(t *testing.T) {
 		AccountsKeyPrefix: "AWSLogs/o-1234abcde/",
 		AccountId:         "222222222222",
 		Region:            "us-east-1",
+		BucketRegion:      "us-east-1",
 		Retention:         model.ReportRetentionOneWeek,
 	})
 	require.NoError(t, err)

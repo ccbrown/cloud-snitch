@@ -2,14 +2,16 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"math"
+	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/organizations"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
@@ -35,7 +37,6 @@ func (LiveAWSOrganizationsAPIFactory) NewFromSTSCredentials(ctx context.Context,
 }
 
 type AmazonS3API interface {
-	GetBucketLocation(ctx context.Context, params *s3.GetBucketLocationInput, optFns ...func(*s3.Options)) (*s3.GetBucketLocationOutput, error)
 	HeadObject(ctx context.Context, params *s3.HeadObjectInput, optFns ...func(*s3.Options)) (*s3.HeadObjectOutput, error)
 	GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 	PutObject(ctx context.Context, params *s3.PutObjectInput, optFns ...func(*s3.Options)) (*s3.PutObjectOutput, error)
@@ -43,15 +44,38 @@ type AmazonS3API interface {
 }
 
 type AmazonS3APIFactory interface {
-	NewFromSTSCredentials(ctx context.Context, credentials *ststypes.Credentials) (AmazonS3API, error)
+	GetBucketRegion(ctx context.Context, bucketName string) (string, error)
+	NewFromSTSCredentials(ctx context.Context, credentials *ststypes.Credentials, region string) (AmazonS3API, error)
 }
 
 type LiveAmazonS3APIFactory struct{}
 
-func (LiveAmazonS3APIFactory) NewFromSTSCredentials(ctx context.Context, creds *ststypes.Credentials) (AmazonS3API, error) {
+func (LiveAmazonS3APIFactory) GetBucketRegion(ctx context.Context, bucketName string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://"+bucketName+".s3.amazonaws.com", nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if _, err := io.Copy(io.Discard, resp.Body); err != nil {
+		return "", err
+	}
+	if region := resp.Header.Get("x-amz-bucket-region"); region != "" {
+		return region, nil
+	}
+	return "", fmt.Errorf("unable to determine bucket region")
+}
+
+func (LiveAmazonS3APIFactory) NewFromSTSCredentials(ctx context.Context, creds *ststypes.Credentials, region string) (AmazonS3API, error) {
 	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(*creds.AccessKeyId, *creds.SecretAccessKey, *creds.SessionToken)))
 	if err != nil {
 		return nil, err
+	}
+	if region != "" {
+		awsConfig.Region = region
 	}
 	return s3.NewFromConfig(awsConfig), nil
 }
@@ -153,18 +177,6 @@ func MostSimilarKnownAWSRegion(region string) string {
 	}
 
 	return best
-}
-
-// https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLocation.html#API_GetBucketLocation_ResponseSyntax
-func S3BucketLocationConstraintRegion(locationConstraint s3types.BucketLocationConstraint) string {
-	switch locationConstraint {
-	case "":
-		return "us-east-1"
-	case "EU":
-		return "eu-west-1"
-	default:
-		return string(locationConstraint)
-	}
 }
 
 func (a *App) ClosestAvailableAWSRegion(region string) string {
