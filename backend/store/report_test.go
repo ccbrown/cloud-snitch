@@ -41,4 +41,26 @@ func TestReport(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, reports, 0)
 	})
+
+	t.Run("DeleteByIds", func(t *testing.T) {
+		var ids []model.Id
+		for i := 0; i < 120; i++ {
+			id := model.NewReportId()
+			ids = append(ids, id)
+			require.NoError(t, s.PutReport(context.Background(), &model.Report{
+				Id:     id,
+				TeamId: r.TeamId,
+			}))
+		}
+
+		reports, err := s.GetReportsByTeamId(context.Background(), r.TeamId)
+		require.NoError(t, err)
+		assert.Len(t, reports, 120)
+
+		require.NoError(t, s.DeleteReportsByIds(context.Background(), ids...))
+
+		reports, err = s.GetReportsByTeamId(context.Background(), r.TeamId)
+		require.NoError(t, err)
+		assert.Empty(t, reports)
+	})
 }
