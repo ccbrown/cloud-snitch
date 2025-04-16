@@ -211,14 +211,16 @@ func (s *Session) PatchAWSIntegrationById(ctx context.Context, id model.Id, patc
 func (s *Session) DeleteAWSIntegrationById(ctx context.Context, id model.Id, deleteAssociatedData bool) UserFacingError {
 	if err := s.RequireUser(); err != nil {
 		return err
-	} else if integration, err := s.app.store.GetAWSIntegrationById(ctx, id); integration == nil || err != nil {
+	}
+	integration, err := s.app.store.GetAWSIntegrationById(ctx, id)
+	if integration == nil || err != nil {
 		return s.SanitizedError(err)
 	} else if err := s.RequireTeamAdministrator(ctx, integration.TeamId); err != nil {
 		return err
 	}
 
 	if deleteAssociatedData {
-		if reports, err := s.app.store.GetReportsByTeamId(ctx, id); err != nil {
+		if reports, err := s.app.store.GetReportsByTeamId(ctx, integration.TeamId); err != nil {
 			return s.SanitizedError(err)
 		} else {
 			var toDelete []model.Id
