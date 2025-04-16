@@ -39,11 +39,12 @@ func (r *AWSCloudTrailRecord) EventSummaryKey() string {
 type AWSCloudTrailUserIdentityType string
 
 const (
-	AWSCloudTrailUserIdentityTypeAssumedRole AWSCloudTrailUserIdentityType = "AssumedRole"
-	AWSCloudTrailUserIdentityTypeRole        AWSCloudTrailUserIdentityType = "Role"
-	AWSCloudTrailUserIdentityTypeIAMUser     AWSCloudTrailUserIdentityType = "IAMUser"
-	AWSCloudTrailUserIdentityTypeAWSService  AWSCloudTrailUserIdentityType = "AWSService"
-	AWSCloudTrailUserIdentityTypeAWSAccount  AWSCloudTrailUserIdentityType = "AWSAccount"
+	AWSCloudTrailUserIdentityTypeAssumedRole     AWSCloudTrailUserIdentityType = "AssumedRole"
+	AWSCloudTrailUserIdentityTypeRole            AWSCloudTrailUserIdentityType = "Role"
+	AWSCloudTrailUserIdentityTypeIAMUser         AWSCloudTrailUserIdentityType = "IAMUser"
+	AWSCloudTrailUserIdentityTypeAWSService      AWSCloudTrailUserIdentityType = "AWSService"
+	AWSCloudTrailUserIdentityTypeAWSAccount      AWSCloudTrailUserIdentityType = "AWSAccount"
+	AWSCloudTrailUserIdentityTypeWebIdentityUser AWSCloudTrailUserIdentityType = "WebIdentityUser"
 )
 
 func (t AWSCloudTrailUserIdentityType) PrincipalType() PrincipalType {
@@ -58,17 +59,20 @@ func (t AWSCloudTrailUserIdentityType) PrincipalType() PrincipalType {
 		return PrincipalTypeAWSService
 	case AWSCloudTrailUserIdentityTypeAWSAccount:
 		return PrincipalTypeAWSAccount
+	case AWSCloudTrailUserIdentityTypeWebIdentityUser:
+		return PrincipalTypeWebIdentityUser
 	default:
 		return PrincipalTypeUnknown
 	}
 }
 
 type AWSCloudTrailUserIdentity struct {
-	Type           AWSCloudTrailUserIdentityType
-	PrincipalId    string
-	SessionContext *AWSCloudTrailUserIdentitySessionContext
-	ARN            string
-	InvokedBy      string
+	Type             AWSCloudTrailUserIdentityType
+	PrincipalId      string
+	SessionContext   *AWSCloudTrailUserIdentitySessionContext
+	ARN              string
+	InvokedBy        string
+	IdentityProvider string
 }
 
 func (i *AWSCloudTrailUserIdentity) PrincipalName() string {
@@ -76,6 +80,9 @@ func (i *AWSCloudTrailUserIdentity) PrincipalName() string {
 		if name := i.SessionContext.SessionIssuer.PrincipalName(); name != "" {
 			return name
 		}
+	}
+	if i.IdentityProvider != "" {
+		return i.IdentityProvider
 	}
 	if i.ARN != "" {
 		return i.ARN
@@ -89,6 +96,9 @@ func (i *AWSCloudTrailUserIdentity) PrincipalARN() string {
 			return arn
 		}
 	}
+	if i.IdentityProvider != "" {
+		return i.IdentityProvider
+	}
 	if i.ARN != "" {
 		return i.ARN
 	}
@@ -100,6 +110,9 @@ func (i *AWSCloudTrailUserIdentity) PrincipalKey() string {
 		if key := i.SessionContext.SessionIssuer.PrincipalKey(); key != "" {
 			return key
 		}
+	}
+	if i.IdentityProvider != "" {
+		return i.IdentityProvider
 	}
 	if i.PrincipalId != "" {
 		return i.PrincipalId

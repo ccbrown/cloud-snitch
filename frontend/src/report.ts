@@ -15,7 +15,13 @@ export interface Location {
     subdivisionNames?: string[];
 }
 
-export type PrincipalType = 'AWSAssumedRole' | 'AWSService' | 'AWSIAMUser' | 'AWSAccount' | 'AWSRole';
+export type PrincipalType =
+    | 'AWSAssumedRole'
+    | 'AWSService'
+    | 'AWSIAMUser'
+    | 'AWSAccount'
+    | 'AWSRole'
+    | 'WebIdentityUser';
 
 export const formatPrincipalType = (type: PrincipalType): string => {
     switch (type) {
@@ -29,6 +35,8 @@ export const formatPrincipalType = (type: PrincipalType): string => {
             return 'AWS Account';
         case 'AWSRole':
             return 'AWS Role';
+        case 'WebIdentityUser':
+            return 'Web Identity User';
         default:
             return 'Unknown';
     }
