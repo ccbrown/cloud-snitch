@@ -3,6 +3,7 @@ import Image from 'next/image';
 import AwsIcon from '@/assets/aws/Architecture-Group-Icons_02072025/AWS-Cloud-logo_32.svg';
 import AwsAccountIcon from '@/assets/aws/Architecture-Group-Icons_02072025/AWS-Account_32.svg';
 import AwsRoleIcon from '@/assets/aws/Resource-Icons_02072025/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Role_48.svg';
+import AwsIamAddOnIcon from '@/assets/aws/Resource-Icons_02072025/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Add-on_48.svg';
 import AwsIamUserIcon from '@/assets/aws/Resource-Icons_02072025/Res_General-Icons/Res_48_Dark/Res_User_48_Dark.svg';
 
 import { formatPrincipalType, PrincipalType } from '@/report';
@@ -32,6 +33,12 @@ export const PrincipalIcon = ({ className, type }: Props) => {
             );
         case 'AWSService':
             return <Image src={AwsIcon} alt={alt} className={className} />;
+        case 'WebIdentityUser':
+            return (
+                <div className={`bg-white p-1 ${className}`}>
+                    <Image src={AwsIamAddOnIcon} alt={alt} className="w-full h-full" />
+                </div>
+            );
         default:
             return <div className={`bg-gray-600 p-1 ${className}`} />;
     }

@@ -393,3 +393,81 @@ func TestReport_AWSInternalServiceEvent(t *testing.T) {
 
 	require.Len(t, r.Principals, 1)
 }
+
+func TestReport_WebIdentityUserEvent(t *testing.T) {
+	rawEvent := `{
+		"eventVersion": "1.08",
+		"userIdentity": {
+			"type": "WebIdentityUser",
+			"principalId": "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com:sts.amazonaws.com:repo:ccbrown/cloud-snitch:ref:refs/heads/main",
+			"userName": "repo:ccbrown/cloud-snitch:ref:refs/heads/main",
+			"identityProvider": "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com"
+		},
+		"eventTime": "2025-04-16T02:46:56Z",
+		"eventSource": "sts.amazonaws.com",
+		"eventName": "AssumeRoleWithWebIdentity",
+		"awsRegion": "us-east-1",
+		"sourceIPAddress": "52.154.133.36",
+		"userAgent": "aws-sdk-nodejs/2.1112.0 linux/v20.19.0 configure-aws-credentials-for-github-actions promise",
+		"requestParameters": {
+			"roleArn": "arn:aws:iam::774305579662:role/cloud-snitch-github-actio-GithubActionsRoleF5CC769F-MoeCHSu77MYt",
+			"roleSessionName": "GitHubActions",
+			"durationSeconds": 3600
+		},
+		"responseElements": {
+			"credentials": {
+				"accessKeyId": "ASIA3ISBVQKHJOCMRQJH",
+				"sessionToken": "",
+				"expiration": "Apr 16, 2025, 3:46:56 AM"
+			},
+			"subjectFromWebIdentityToken": "repo:ccbrown/cloud-snitch:ref:refs/heads/main",
+			"assumedRoleUser": {
+				"assumedRoleId": "AROA3ISBVQKHLCPMWHJG5:GitHubActions",
+				"arn": "arn:aws:sts::774305579662:assumed-role/cloud-snitch-github-actio-GithubActionsRoleF5CC769F-MoeCHSu77MYt/GitHubActions"
+			},
+			"provider": "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com",
+			"audience": "sts.amazonaws.com"
+		},
+		"additionalEventData": {
+			"identityProviderConnectionVerificationMethod": "IAMTrustStore",
+			"RequestDetails": {
+				"awsServingRegion": "us-east-1",
+				"endpointType": "regional"
+			}
+		},
+		"requestID": "6936cb5f-948b-4139-8939-06118942c0cc",
+		"eventID": "ef0464cd-918e-4528-9ea3-1a081d39b393",
+		"readOnly": true,
+		"resources": [
+			{
+				"accountId": "774305579662",
+				"type": "AWS::IAM::Role",
+				"ARN": "arn:aws:iam::774305579662:role/cloud-snitch-github-actio-GithubActionsRoleF5CC769F-MoeCHSu77MYt"
+			}
+		],
+		"eventType": "AwsApiCall",
+		"managementEvent": true,
+		"recipientAccountId": "774305579662",
+		"eventCategory": "Management",
+		"tlsDetails": {
+			"tlsVersion": "TLSv1.3",
+			"cipherSuite": "TLS_AES_128_GCM_SHA256",
+			"clientProvidedHostHeader": "sts.us-east-1.amazonaws.com"
+		}
+	}`
+
+	var record AWSCloudTrailRecord
+	require.NoError(t, json.Unmarshal([]byte(rawEvent), &record))
+
+	r := &Report{}
+	r.ImportAWSCloudTrailRecord(&record)
+
+	require.Len(t, r.Principals, 1)
+	for id, p := range r.Principals {
+		assert.Equal(t, PrincipalTypeWebIdentityUser, p.Type)
+		assert.Equal(t, "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com", p.Name)
+		assert.Equal(t, "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com", p.ARN)
+		assert.Equal(t, "arn:aws:iam::774305579662:oidc-provider/token.actions.githubusercontent.com", id)
+		break
+	}
+}

@@ -41,12 +41,13 @@ type Location struct {
 type PrincipalType string
 
 const (
-	PrincipalTypeUnknown        PrincipalType = ""
-	PrincipalTypeAWSAssumedRole PrincipalType = "AWSAssumedRole"
-	PrincipalTypeAWSRole        PrincipalType = "AWSRole"
-	PrincipalTypeAWSIAMUser     PrincipalType = "AWSIAMUser"
-	PrincipalTypeAWSService     PrincipalType = "AWSService"
-	PrincipalTypeAWSAccount     PrincipalType = "AWSAccount"
+	PrincipalTypeUnknown         PrincipalType = ""
+	PrincipalTypeAWSAssumedRole  PrincipalType = "AWSAssumedRole"
+	PrincipalTypeAWSRole         PrincipalType = "AWSRole"
+	PrincipalTypeAWSIAMUser      PrincipalType = "AWSIAMUser"
+	PrincipalTypeAWSService      PrincipalType = "AWSService"
+	PrincipalTypeAWSAccount      PrincipalType = "AWSAccount"
+	PrincipalTypeWebIdentityUser PrincipalType = "WebIdentityUser"
 )
 
 type Principal struct {
