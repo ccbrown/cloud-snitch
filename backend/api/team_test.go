@@ -1,6 +1,10 @@
 package api
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -334,6 +338,23 @@ func TestAPI_TeamPrincipalSettings(t *testing.T) {
 		require.NoError(t, err)
 		settings := resp.(apispec.GetTeamPrincipalSettings200JSONResponse)
 		assert.Equal(t, "This is a description.", *settings.Description)
+	})
+
+	t.Run("SlashInKey", func(t *testing.T) {
+		const principalKey = "foo/bar"
+
+		w := httptest.NewRecorder()
+		r, err := http.NewRequest("GET", "/teams/"+team.Id.String()+"/principal-settings/"+url.PathEscape(principalKey), nil)
+		require.NoError(t, err)
+		r.Header.Set("Authorization", "token foo")
+		api.ServeHTTP(w, r)
+
+		resp := w.Result()
+		body, err := ioutil.ReadAll(resp.Body)
+		require.NoError(t, err)
+		resp.Body.Close()
+
+		require.Equal(t, http.StatusUnauthorized, resp.StatusCode, "%v", string(body))
 	})
 
 	t.Run("Update", func(t *testing.T) {
