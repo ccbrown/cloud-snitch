@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 
@@ -130,7 +129,6 @@ func New(a *app.App, config Config) *API {
 			}
 		},
 	}), apispec.GorillaServerOptions{
-		BaseRouter: mux.NewRouter().UseEncodedPath(),
 		Middlewares: []apispec.MiddlewareFunc{
 			AddRequestToContextMiddleware,
 			NoCachingMiddleware,
