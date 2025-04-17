@@ -275,7 +275,7 @@ func (api *API) GetTeamPrincipalSettings(ctx context.Context, request apispec.Ge
 	sess := ctxSession(ctx)
 	teamId := model.Id(request.TeamId)
 
-	if settings, err := sess.GetTeamPrincipalSettingsByTeamIdAndPrincipalKey(ctx, teamId, request.PrincipalKey); err != nil {
+	if settings, err := sess.GetTeamPrincipalSettingsByTeamIdAndPrincipalKey(ctx, teamId, request.Params.PrincipalKey); err != nil {
 		return nil, err
 	} else if settings == nil {
 		return apispec.GetTeamPrincipalSettings200JSONResponse(apispec.TeamPrincipalSettings{}), nil
@@ -288,7 +288,7 @@ func (api *API) UpdateTeamPrincipalSettings(ctx context.Context, request apispec
 	sess := ctxSession(ctx)
 	teamId := model.Id(request.TeamId)
 
-	if settings, err := sess.CreateOrPatchTeamPrincipalSettingsByTeamIdAndPrincipalKey(ctx, teamId, request.PrincipalKey, app.TeamPrincipalSettingsPatch{
+	if settings, err := sess.CreateOrPatchTeamPrincipalSettingsByTeamIdAndPrincipalKey(ctx, teamId, request.Params.PrincipalKey, app.TeamPrincipalSettingsPatch{
 		Description: request.Body.Description,
 	}); err != nil {
 		return nil, err

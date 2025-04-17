@@ -774,14 +774,23 @@ paths:
                 $ref: '#/components/schemas/TeamMembership'
         '404':
           $ref: '#/components/responses/ErrorResponse'
-  /teams/{teamId}/principal-settings/{principalKey}:
+  /teams/{teamId}/principal-settings:
     parameters:
       - in: path
         name: teamId
         schema:
           type: string
         required: true
-      - in: path
+        # This should probably be a path parameter, but it can contain slashes and API gateway
+        # doesn't seem capable of handling URL-encoded slashes correctly.
+        #
+        # Related links:
+        #
+        # https://www.reddit.com/r/aws/comments/ykpvsn/api_gateway_http_proxy_is_unencoding_my_url/
+        # https://stackoverflow.com/questions/69677023/aws-api-gateway-expects-the-request-url-to-be-encoded-twice
+        # https://repost.aws/questions/QUg-guZiB-RHqoUXtBWjVg0w/issue-with-slashes-for-integrating-api-gateway-with-cloudsearch
+        # https://stackoverflow.com/questions/37199004/how-to-force-api-gateway-to-not-decode-parameters-or-cloudsearch-to-expects-deco
+      - in: query
         name: principalKey
         schema:
           type: string
