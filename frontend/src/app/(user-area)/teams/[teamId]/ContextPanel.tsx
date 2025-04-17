@@ -311,9 +311,11 @@ const PrincipalContext = ({ id, combinedReport }: PrincipalContextProps) => {
                     )}
                 </div>
             </div>
-            <p>
-                <strong>Id:</strong> {id}
-            </p>
+            {id !== principal.arn && (
+                <p className="break-words">
+                    <strong>Id:</strong> {id}
+                </p>
+            )}
             {principal.arn && (
                 <p className="break-words">
                     <strong>ARN:</strong> {principal.arn}
