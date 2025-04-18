@@ -34,6 +34,8 @@ func NewTestApp(t *testing.T) *TestApp {
 		S3:                    &TestAmazonS3API{},
 		S3Factory:             &TestAmazonS3APIFactory{},
 		SQSFactory:            sqsFactory,
+		IAMFactory:            &TestAWSIAMAPIFactory{},
+		OrganizationsFactory:  &TestAWSOrganizationsAPIFactory{},
 		StripeSecretKey:       "sk_test_12345678901234567890123456789012",
 		Pricing: app.PricingConfig{
 			IndividualSubscriptionStripePriceId: DummyStripePriceIndividualSubscription.ID,

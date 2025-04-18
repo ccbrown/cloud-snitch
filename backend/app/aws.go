@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/organizations"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -18,8 +19,39 @@ import (
 	geo "github.com/kellydunn/golang-geo"
 )
 
+type AWSIAMAPI interface {
+	GenerateOrganizationsAccessReport(ctx context.Context, params *iam.GenerateOrganizationsAccessReportInput, optFns ...func(*iam.Options)) (*iam.GenerateOrganizationsAccessReportOutput, error)
+	GetOrganizationsAccessReport(ctx context.Context, params *iam.GetOrganizationsAccessReportInput, optFns ...func(*iam.Options)) (*iam.GetOrganizationsAccessReportOutput, error)
+}
+
+type AWSIAMAPIFactory interface {
+	NewFromSTSCredentials(ctx context.Context, credentials *ststypes.Credentials) (AWSIAMAPI, error)
+}
+
+type LiveAWSIAMAPIFactory struct{}
+
+func (LiveAWSIAMAPIFactory) NewFromSTSCredentials(ctx context.Context, creds *ststypes.Credentials) (AWSIAMAPI, error) {
+	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(*creds.AccessKeyId, *creds.SecretAccessKey, *creds.SessionToken)))
+	if err != nil {
+		return nil, err
+	}
+	// AWS IAM is a global service, but its control plane is in us-east-1. If us-east-1 is down,
+	// there would be nothing we can do anyway, so we'll always us-east-1 in order to keep our
+	// activity predictable.
+	// See: https://docs.aws.amazon.com/whitepapers/latest/aws-fault-isolation-boundaries/global-services.html
+	awsConfig.Region = "us-east-1"
+	return iam.NewFromConfig(awsConfig), nil
+}
+
 type AWSOrganizationsAPI interface {
 	ListAccounts(ctx context.Context, params *organizations.ListAccountsInput, optFns ...func(*organizations.Options)) (*organizations.ListAccountsOutput, error)
+	ListParents(ctx context.Context, params *organizations.ListParentsInput, optFns ...func(*organizations.Options)) (*organizations.ListParentsOutput, error)
+	ListPoliciesForTarget(ctx context.Context, params *organizations.ListPoliciesForTargetInput, optFns ...func(*organizations.Options)) (*organizations.ListPoliciesForTargetOutput, error)
+	DescribePolicy(ctx context.Context, params *organizations.DescribePolicyInput, optFns ...func(*organizations.Options)) (*organizations.DescribePolicyOutput, error)
+	AttachPolicy(ctx context.Context, params *organizations.AttachPolicyInput, optFns ...func(*organizations.Options)) (*organizations.AttachPolicyOutput, error)
+	CreatePolicy(ctx context.Context, params *organizations.CreatePolicyInput, optFns ...func(*organizations.Options)) (*organizations.CreatePolicyOutput, error)
+	UpdatePolicy(ctx context.Context, params *organizations.UpdatePolicyInput, optFns ...func(*organizations.Options)) (*organizations.UpdatePolicyOutput, error)
+	ListRoots(ctx context.Context, params *organizations.ListRootsInput, optFns ...func(*organizations.Options)) (*organizations.ListRootsOutput, error)
 }
 
 type AWSOrganizationsAPIFactory interface {
@@ -33,6 +65,11 @@ func (LiveAWSOrganizationsAPIFactory) NewFromSTSCredentials(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+	// AWS Organizations is a global service, but its control plane is in us-east-1. If us-east-1 is
+	// down, there would be nothing we can do anyway, so we'll always us-east-1 in order to keep our
+	// activity predictable.
+	// See: https://docs.aws.amazon.com/whitepapers/latest/aws-fault-isolation-boundaries/global-services.html
+	awsConfig.Region = "us-east-1"
 	return organizations.NewFromConfig(awsConfig), nil
 }
 

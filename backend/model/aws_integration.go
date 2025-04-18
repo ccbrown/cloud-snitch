@@ -16,6 +16,7 @@ type AWSIntegration struct {
 	RoleARN string
 
 	GetAccountNamesFromOrganizations bool
+	ManageSCPs                       bool
 	CloudTrailTrail                  *AWSIntegrationCloudTrailTrail
 }
 
@@ -31,6 +32,7 @@ type AWSIntegrationRecon struct {
 
 	Time           time.Time
 	ExpirationTime time.Time
+	CanManageSCPs  bool
 
 	Accounts []AWSIntegrationAccountRecon
 }
@@ -38,4 +40,18 @@ type AWSIntegrationRecon struct {
 type AWSIntegrationAccountRecon struct {
 	Id   string
 	Name string
+}
+
+type AWSSCP struct {
+	Content string
+}
+
+type AWSAccessReport struct {
+	Services []AWSAccessReportService
+}
+
+type AWSAccessReportService struct {
+	Name                   string
+	Namespace              string
+	LastAuthenticationTime time.Time
 }

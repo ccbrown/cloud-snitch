@@ -4,12 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/aws/aws-sdk-go-v2/service/organizations"
+	organizationstypes "github.com/aws/aws-sdk-go-v2/service/organizations/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 	"github.com/aws/smithy-go"
 
 	"github.com/ccbrown/cloud-snitch/backend/model"
@@ -21,6 +26,7 @@ type CreateAWSIntegrationInput struct {
 	Name                             string
 	RoleARN                          string
 	GetAccountNamesFromOrganizations bool
+	ManageSCPs                       bool
 	CloudTrailTrail                  *CreateAWSIntegrationCloudTrailTrailInput
 	QueueReportGeneration            bool
 }
@@ -30,7 +36,11 @@ type CreateAWSIntegrationCloudTrailTrailInput struct {
 	S3KeyPrefix  string
 }
 
-func (s *Session) ValidateAWSIntegrationRole(ctx context.Context, input CreateAWSIntegrationInput) UserFacingError {
+func (s *Session) ValidateAWSIntegration(ctx context.Context, input CreateAWSIntegrationInput) UserFacingError {
+	if input.ManageSCPs && !input.GetAccountNamesFromOrganizations {
+		return NewUserError("To manage SCPs you must also allow the integration to get account info from AWS Organizations.")
+	}
+
 	// First, make sure we *can't* assume the role without the external id.
 	if _, err := s.app.sts.AssumeRole(ctx, &sts.AssumeRoleInput{
 		RoleArn:         &input.RoleARN,
@@ -57,9 +67,47 @@ func (s *Session) ValidateAWSIntegrationRole(ctx context.Context, input CreateAW
 		}
 
 		// organizations:ListAccounts
-		{
-			if _, err := orgsClient.ListAccounts(ctx, &organizations.ListAccountsInput{}); err != nil {
-				return NewUserError("Unable to get account names. Please make sure the role has permission to perform the organizations:ListAccounts action.")
+		accounts, err := orgsClient.ListAccounts(ctx, &organizations.ListAccountsInput{})
+		if err != nil || len(accounts.Accounts) == 0 {
+			return NewUserError("Unable to get account info. Please make sure the role has permission to perform the organizations:ListAccounts action.")
+		}
+
+		if input.ManageSCPs {
+			// organizations:ListPoliciesForTarget
+			{
+				if _, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
+					Filter:   organizationstypes.PolicyTypeServiceControlPolicy,
+					TargetId: accounts.Accounts[0].Id,
+				}); err != nil {
+					return NewUserError("Unable to get policies. Please make sure the role has permission to perform the organizations:ListPoliciesForTarget action.")
+				}
+			}
+
+			// organizations:ListParents
+			{
+				if _, err := orgsClient.ListParents(ctx, &organizations.ListParentsInput{
+					ChildId: accounts.Accounts[0].Id,
+				}); err != nil {
+					return NewUserError("Unable to get account parents. Please make sure the role has permission to perform the organizations:ListParents action.")
+				}
+			}
+
+			// organizations:ListRoots
+			{
+				output, err := orgsClient.ListRoots(ctx, &organizations.ListRootsInput{})
+				if err != nil || len(output.Roots) == 0 {
+					return NewUserError("Unable to get organization roots. Please make sure the role has permission to perform the organizations:ListRoots action.")
+				}
+				var hasSCPsEnabled bool
+				for _, t := range output.Roots[0].PolicyTypes {
+					if t.Status == organizationstypes.PolicyTypeStatusEnabled && t.Type == organizationstypes.PolicyTypeServiceControlPolicy {
+						hasSCPsEnabled = true
+						break
+					}
+				}
+				if !hasSCPsEnabled {
+					return NewUserError("SCPs are not enabled for the organization. Please enable them and try again.")
+				}
 			}
 		}
 	}
@@ -135,7 +183,7 @@ func (s *Session) CreateAWSIntegration(ctx context.Context, input CreateAWSInteg
 		}
 	}
 
-	if err := s.ValidateAWSIntegrationRole(ctx, input); err != nil {
+	if err := s.ValidateAWSIntegration(ctx, input); err != nil {
 		return nil, err
 	}
 
@@ -146,6 +194,7 @@ func (s *Session) CreateAWSIntegration(ctx context.Context, input CreateAWSInteg
 		Name:                             input.Name,
 		RoleARN:                          input.RoleARN,
 		GetAccountNamesFromOrganizations: input.GetAccountNamesFromOrganizations,
+		ManageSCPs:                       input.ManageSCPs,
 	}
 	if trail := input.CloudTrailTrail; trail != nil {
 		integration.CloudTrailTrail = &model.AWSIntegrationCloudTrailTrail{
@@ -158,7 +207,7 @@ func (s *Session) CreateAWSIntegration(ctx context.Context, input CreateAWSInteg
 		return nil, s.SanitizedError(err)
 	}
 
-	if input.QueueReportGeneration {
+	{
 		today := time.Now().Truncate(24 * time.Hour)
 		for i := 0; i < 7; i++ {
 			if err := s.app.queueAWSIntegrationReportGeneration(ctx, queueAWSIntegrationReportGenerationInput{
@@ -166,6 +215,7 @@ func (s *Session) CreateAWSIntegration(ctx context.Context, input CreateAWSInteg
 				StartTime:   today.Add(-time.Duration(i) * 24 * time.Hour),
 				Duration:    24 * time.Hour,
 				Retention:   team.Entitlements.ReportRetention(),
+				ReconOnly:   !input.QueueReportGeneration,
 			}); err != nil {
 				return nil, s.SanitizedError(fmt.Errorf("failed to queue report generation: %w", err))
 			}
@@ -299,9 +349,294 @@ func (a *App) PutAWSIntegrationRecon(ctx context.Context, input PutAWSIntegratio
 	return nil
 }
 
-func (s *Session) GetAWSIntegrationReconsByTeamId(ctx context.Context, teamId model.Id) ([]*model.AWSIntegrationRecon, error) {
+func (s *Session) GetAWSIntegrationReconsByTeamId(ctx context.Context, teamId model.Id) ([]*model.AWSIntegrationRecon, UserFacingError) {
 	if err := s.RequireTeamMember(ctx, teamId); err != nil {
 		return nil, err
 	}
-	return s.app.store.GetAWSIntegrationReconsByTeamId(ctx, teamId)
+	ret, err := s.app.store.GetAWSIntegrationReconsByTeamId(ctx, teamId)
+	return ret, s.SanitizedError(err)
+}
+
+func (a *App) assumeAWSIntegrationRole(ctx context.Context, integration *model.AWSIntegration) (*ststypes.Credentials, error) {
+	output, err := a.sts.AssumeRole(ctx, &sts.AssumeRoleInput{
+		RoleArn:         &integration.RoleARN,
+		RoleSessionName: aws.String("cloud_snitch"),
+		ExternalId:      aws.String(integration.TeamId.String()),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return output.Credentials, nil
+}
+
+// Finds an integration for the given team which is capable of managing SCPs for the given account.
+func (a *App) awsSCPManagementIntegrationByTeamAndAccountId(ctx context.Context, teamId model.Id, accountId string) (*model.AWSIntegration, error) {
+	recons, err := a.store.GetAWSIntegrationReconsByTeamId(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	for _, recon := range recons {
+		for _, account := range recon.Accounts {
+			if account.Id == accountId {
+				if integration, err := a.store.GetAWSIntegrationById(ctx, recon.AWSIntegrationId); err != nil {
+					return nil, err
+				} else if integration != nil && integration.ManageSCPs {
+					return integration, nil
+				}
+			}
+		}
+	}
+	return nil, nil
+}
+
+const ManagedAWSSCPName = "CloudSnitchManagedSCP"
+
+const CloudSnitchManagedResourceTag = "CloudSnitchManaged"
+
+func (s *Session) GetManagedAWSSCPByTeamAndAccountId(ctx context.Context, teamId model.Id, accountId string) (*model.AWSSCP, UserFacingError) {
+	if err := s.RequireTeamMember(ctx, teamId); err != nil {
+		return nil, err
+	}
+
+	integration, err := s.app.awsSCPManagementIntegrationByTeamAndAccountId(ctx, teamId, accountId)
+	if err != nil || integration == nil {
+		return nil, s.SanitizedError(err)
+	}
+
+	creds, err := s.app.assumeAWSIntegrationRole(ctx, integration)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to assume role: %w", err))
+	}
+
+	orgsClient, err := s.app.organizationsFactory.NewFromSTSCredentials(ctx, creds)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to create organizations client: %w", err))
+	}
+
+	var nextToken *string
+	for {
+		output, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
+			Filter:    organizationstypes.PolicyTypeServiceControlPolicy,
+			TargetId:  aws.String(accountId),
+			NextToken: nextToken,
+		})
+		if err != nil {
+			return nil, s.SanitizedError(fmt.Errorf("failed to list account scps: %w", err))
+		}
+
+		for _, policySummary := range output.Policies {
+			if policySummary.Name == nil || *policySummary.Name != ManagedAWSSCPName {
+				continue
+			}
+			if policy, err := orgsClient.DescribePolicy(ctx, &organizations.DescribePolicyInput{
+				PolicyId: policySummary.Id,
+			}); err != nil {
+				return nil, s.SanitizedError(fmt.Errorf("failed to describe policy: %w", err))
+			} else if policy.Policy != nil && policy.Policy.Content != nil {
+				return &model.AWSSCP{
+					Content: *policy.Policy.Content,
+				}, nil
+			}
+		}
+
+		if output.NextToken == nil {
+			return nil, nil
+		}
+		nextToken = output.NextToken
+	}
+}
+
+type PutManagedAWSSCPInput struct {
+	Content string
+}
+
+func (s *Session) PutManagedAWSSCPByTeamAndAccountId(ctx context.Context, teamId model.Id, accountId string, input PutManagedAWSSCPInput) (*model.AWSSCP, UserFacingError) {
+	if err := s.RequireTeamMember(ctx, teamId); err != nil {
+		return nil, err
+	}
+
+	integration, err := s.app.awsSCPManagementIntegrationByTeamAndAccountId(ctx, teamId, accountId)
+	if err != nil || integration == nil {
+		return nil, s.SanitizedError(err)
+	}
+
+	creds, err := s.app.assumeAWSIntegrationRole(ctx, integration)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to assume role: %w", err))
+	}
+
+	orgsClient, err := s.app.organizationsFactory.NewFromSTSCredentials(ctx, creds)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to create organizations client: %w", err))
+	}
+
+	ret := &model.AWSSCP{
+		Content: input.Content,
+	}
+
+	var nextToken *string
+	for {
+		output, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
+			Filter:    organizationstypes.PolicyTypeServiceControlPolicy,
+			TargetId:  aws.String(accountId),
+			NextToken: nextToken,
+		})
+		if err != nil {
+			return nil, s.SanitizedError(fmt.Errorf("failed to list account scps: %w", err))
+		}
+
+		for _, policySummary := range output.Policies {
+			if policySummary.Name == nil || *policySummary.Name != ManagedAWSSCPName {
+				continue
+			}
+
+			// Existing policy found, just update it.
+
+			if _, err := orgsClient.UpdatePolicy(ctx, &organizations.UpdatePolicyInput{
+				PolicyId: policySummary.Id,
+				Content:  aws.String(input.Content),
+			}); err != nil {
+				return nil, s.SanitizedError(fmt.Errorf("failed to update policy: %w", err))
+			}
+
+			return ret, nil
+		}
+
+		if output.NextToken == nil {
+			break
+		}
+		nextToken = output.NextToken
+	}
+
+	// Create a new policy and attach it.
+
+	policy, err := orgsClient.CreatePolicy(ctx, &organizations.CreatePolicyInput{
+		Name:        aws.String(ManagedAWSSCPName),
+		Description: aws.String("Managed by CloudSnitch (" + s.app.config.FrontendURL + "). Do not modify directly."),
+		Type:        organizationstypes.PolicyTypeServiceControlPolicy,
+		Content:     &input.Content,
+		Tags: []organizationstypes.Tag{
+			{
+				Key:   aws.String(CloudSnitchManagedResourceTag),
+				Value: aws.String("true"),
+			},
+		},
+	})
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to create policy: %w", err))
+	}
+
+	if _, err := orgsClient.AttachPolicy(ctx, &organizations.AttachPolicyInput{
+		PolicyId: policy.Policy.PolicySummary.Id,
+		TargetId: aws.String(accountId),
+	}); err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to attach policy: %w", err))
+	}
+
+	return ret, nil
+}
+
+func (s *Session) GetAWSAccessReportByTeamAndAccountId(ctx context.Context, teamId model.Id, accountId string) (*model.AWSAccessReport, UserFacingError) {
+	if err := s.RequireTeamMember(ctx, teamId); err != nil {
+		return nil, err
+	}
+
+	integration, err := s.app.awsSCPManagementIntegrationByTeamAndAccountId(ctx, teamId, accountId)
+	if err != nil || integration == nil {
+		return nil, s.SanitizedError(err)
+	}
+
+	creds, err := s.app.assumeAWSIntegrationRole(ctx, integration)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to assume role: %w", err))
+	}
+
+	orgsClient, err := s.app.organizationsFactory.NewFromSTSCredentials(ctx, creds)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to create organizations client: %w", err))
+	}
+
+	var entityPath string
+
+	// It sure takes a lot of effort to get the entity path... Is there an easier way to do this?
+	{
+		entityPathComponents := []string{accountId}
+		for {
+			output, err := orgsClient.ListParents(ctx, &organizations.ListParentsInput{
+				ChildId: aws.String(entityPathComponents[0]),
+			})
+			if err != nil {
+				return nil, s.SanitizedError(fmt.Errorf("failed to list parents: %w", err))
+			}
+			if len(output.Parents) == 0 {
+				return nil, s.SanitizedError(fmt.Errorf("failed to find organization root"))
+			}
+			p := output.Parents[0]
+			entityPathComponents = append([]string{*p.Id}, entityPathComponents...)
+			if p.Type == organizationstypes.ParentTypeRoot {
+				break
+			}
+		}
+
+		output, err := orgsClient.ListRoots(ctx, &organizations.ListRootsInput{})
+		if err != nil || len(output.Roots) == 0 {
+			return nil, s.SanitizedError(fmt.Errorf("failed to list roots: %w", err))
+		}
+		rootArnParts := strings.Split(*output.Roots[0].Arn, "/")
+		organizationId := rootArnParts[1]
+		entityPathComponents = append([]string{organizationId}, entityPathComponents...)
+
+		entityPath = strings.Join(entityPathComponents, "/")
+	}
+
+	iamClient, err := s.app.iamFactory.NewFromSTSCredentials(ctx, creds)
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to create organizations client: %w", err))
+	}
+
+	output, err := iamClient.GenerateOrganizationsAccessReport(ctx, &iam.GenerateOrganizationsAccessReportInput{
+		EntityPath: aws.String(entityPath),
+	})
+	if err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to generate access report: %w", err))
+	}
+
+	var ret model.AWSAccessReport
+
+	jobId := *output.JobId
+	var marker *string
+
+	for {
+		output, err := iamClient.GetOrganizationsAccessReport(ctx, &iam.GetOrganizationsAccessReportInput{
+			JobId:  aws.String(jobId),
+			Marker: marker,
+		})
+		if err != nil {
+			return nil, s.SanitizedError(fmt.Errorf("failed to get access report: %w", err))
+		}
+		if output.JobStatus == iamtypes.JobStatusTypeInProgress {
+			time.Sleep(time.Second)
+			continue
+		} else if output.JobStatus != iamtypes.JobStatusTypeCompleted {
+			return nil, s.SanitizedError(fmt.Errorf("failed to generate access report"))
+		}
+
+		for _, detail := range output.AccessDetails {
+			service := model.AWSAccessReportService{
+				Name:      *detail.ServiceName,
+				Namespace: *detail.ServiceNamespace,
+			}
+			if detail.LastAuthenticatedTime != nil {
+				service.LastAuthenticationTime = *detail.LastAuthenticatedTime
+			}
+			ret.Services = append(ret.Services, service)
+		}
+
+		if !output.IsTruncated {
+			break
+		}
+		marker = output.Marker
+	}
+
+	return &ret, nil
 }

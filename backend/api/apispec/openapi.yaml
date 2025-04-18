@@ -522,6 +522,86 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AWSAccount'
+  /teams/{teamId}/aws-accounts/{accountId}/access-report:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: accountId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Gets an access report for an account.
+      description: Gets an access report for an account.
+      operationId: getAWSAccessReport
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AWSAccessReport'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /teams/{teamId}/aws-accounts/{accountId}/managed-scp:
+    parameters:
+      - in: path
+        name: teamId
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: accountId
+        schema:
+          type: string
+        required: true
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Gets a managed SCP for an account.
+      description: Gets a managed SCP for an account, if one exists.
+      operationId: getManagedAWSSCP
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AWSSCP'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    put:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - aws
+      summary: Creates or updates a managed SCP.
+      description: Creates or updates a managed SCP.
+      operationId: putManagedAWSSCP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutAWSSCPInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AWSSCP'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
   /teams/{teamId}/aws-integrations:
     parameters:
       - in: path
@@ -1184,11 +1264,19 @@ components:
       type: object
       required:
         - id
+        - canManageScps
+        - integrationIds
       properties:
         id:
           type: string
         name:
           type: string
+        canManageScps:
+          type: boolean
+        integrationIds:
+          type: array
+          items:
+            type: string
     AWSIntegration:
       type: object
       required:
@@ -1198,6 +1286,7 @@ components:
         - teamId
         - roleArn
         - getAccountNamesFromOrganizations
+        - manageScps
       properties:
         id:
           type: string
@@ -1211,6 +1300,8 @@ components:
         roleArn:
           type: string
         getAccountNamesFromOrganizations:
+          type: boolean
+        manageScps:
           type: boolean
         cloudtrailTrail:
           $ref: '#/components/schemas/AWSIntegrationCloudTrailTrail'
@@ -1248,6 +1339,42 @@ components:
           type: number
         longitude:
           type: number
+    AWSSCP:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+    PutAWSSCPInput:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+    AWSAccessReport:
+      type: object
+      required:
+        - services
+      properties:
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/AWSAccessReportService'
+    AWSAccessReportService:
+      type: object
+      required:
+        - name
+        - namespace
+      properties:
+        name:
+          type: string
+        namespace:
+          type: string
+        lastAuthenticationTime:
+          type: string
+          format: date-time
     CreateAWSIntegrationInput:
       type: object
       required:
@@ -1259,6 +1386,8 @@ components:
         roleArn:
           type: string
         getAccountNamesFromOrganizations:
+          type: boolean
+        manageScps:
           type: boolean
         cloudtrailTrail:
           $ref: '#/components/schemas/CreateAWSIntegrationCloudTrailTrailInput'

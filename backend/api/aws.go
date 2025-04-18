@@ -35,24 +35,30 @@ func (api *API) GetAWSAccountsByTeamId(ctx context.Context, request apispec.GetA
 	if recons, err := sess.GetAWSIntegrationReconsByTeamId(ctx, teamId); err != nil {
 		return nil, err
 	} else {
-		accounts := map[string]apispec.AWSAccount{}
+		accounts := map[string]*apispec.AWSAccount{}
 		for _, recon := range recons {
 			for _, account := range recon.Accounts {
 				if existing, ok := accounts[account.Id]; ok {
 					if account.Name != "" {
 						existing.Name = &account.Name
 					}
+					if recon.CanManageSCPs {
+						existing.CanManageScps = true
+					}
+					existing.IntegrationIds = append(existing.IntegrationIds, recon.AWSIntegrationId.String())
 				} else {
-					accounts[account.Id] = apispec.AWSAccount{
-						Id:   account.Id,
-						Name: nilIfEmpty(account.Name),
+					accounts[account.Id] = &apispec.AWSAccount{
+						Id:             account.Id,
+						Name:           nilIfEmpty(account.Name),
+						CanManageScps:  recon.CanManageSCPs,
+						IntegrationIds: []string{recon.AWSIntegrationId.String()},
 					}
 				}
 			}
 		}
 		ret := make([]apispec.AWSAccount, 0, len(accounts))
 		for _, account := range accounts {
-			ret = append(ret, account)
+			ret = append(ret, *account)
 		}
 		return apispec.GetAWSAccountsByTeamId200JSONResponse(ret), nil
 	}
