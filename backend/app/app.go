@@ -58,6 +58,7 @@ type App struct {
 	sqs                  map[string]AmazonSQSAPI
 	s3                   AmazonS3API
 	s3Factory            AmazonS3APIFactory
+	iamFactory           AWSIAMAPIFactory
 	urlSigner            *sign.URLSigner
 	stripe               *client.API
 }
@@ -107,7 +108,7 @@ func New(cfg Config) (*App, error) {
 	}
 
 	var awsConfig aws.Config
-	if cfg.S3 == nil || cfg.STS == nil || cfg.SQSFactory == nil || cfg.OrganizationsFactory == nil {
+	if cfg.S3 == nil || cfg.STS == nil || cfg.SQSFactory == nil {
 		awsConfig, err = config.LoadDefaultConfig(context.Background())
 		if err != nil {
 			return nil, fmt.Errorf("error loading default aws config: %w", err)
@@ -138,6 +139,11 @@ func New(cfg Config) (*App, error) {
 	organizationsFactory := cfg.OrganizationsFactory
 	if organizationsFactory == nil {
 		organizationsFactory = LiveAWSOrganizationsAPIFactory{}
+	}
+
+	iamFactory := cfg.IAMFactory
+	if iamFactory == nil {
+		iamFactory = LiveAWSIAMAPIFactory{}
 	}
 
 	sqsAPI := make(map[string]AmazonSQSAPI, len(cfg.AWSRegions))
@@ -173,6 +179,7 @@ func New(cfg Config) (*App, error) {
 		config:               cfg,
 		webAuthn:             webAuthn,
 		organizationsFactory: organizationsFactory,
+		iamFactory:           iamFactory,
 		awsRegion:            awsRegion,
 		sts:                  stsAPI,
 		sqs:                  sqsAPI,

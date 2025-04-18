@@ -16,6 +16,7 @@ func AWSIntegrationFromModel(integration *model.AWSIntegration) apispec.AWSInteg
 		TeamId:                           integration.TeamId.String(),
 		Name:                             integration.Name,
 		GetAccountNamesFromOrganizations: integration.GetAccountNamesFromOrganizations,
+		ManageScps:                       integration.ManageSCPs,
 	}
 	if trail := integration.CloudTrailTrail; trail != nil {
 		ret.CloudtrailTrail = &apispec.AWSIntegrationCloudTrailTrail{
@@ -76,6 +77,9 @@ func (api *API) CreateAWSIntegration(ctx context.Context, request apispec.Create
 	if request.Body.GetAccountNamesFromOrganizations != nil {
 		input.GetAccountNamesFromOrganizations = *request.Body.GetAccountNamesFromOrganizations
 	}
+	if request.Body.ManageScps != nil {
+		input.ManageSCPs = *request.Body.ManageScps
+	}
 	if trail := request.Body.CloudtrailTrail; trail != nil {
 		input.CloudTrailTrail = &app.CreateAWSIntegrationCloudTrailTrailInput{
 			S3BucketName: trail.S3BucketName,
@@ -103,5 +107,66 @@ func (api *API) QueueAWSIntegrationReportGeneration(ctx context.Context, request
 		return nil, err
 	} else {
 		return apispec.QueueAWSIntegrationReportGeneration200Response{}, nil
+	}
+}
+
+func AWSSCPFromModel(scp *model.AWSSCP) apispec.AWSSCP {
+	return apispec.AWSSCP{
+		Content: scp.Content,
+	}
+}
+
+func (api *API) GetManagedAWSSCP(ctx context.Context, request apispec.GetManagedAWSSCPRequestObject) (apispec.GetManagedAWSSCPResponseObject, error) {
+	sess := ctxSession(ctx)
+
+	if scp, err := sess.GetManagedAWSSCPByTeamAndAccountId(ctx, model.Id(request.TeamId), request.AccountId); err != nil {
+		return nil, err
+	} else if scp == nil {
+		return nil, app.NotFoundError("No such SCP.")
+	} else {
+		return apispec.GetManagedAWSSCP200JSONResponse(AWSSCPFromModel(scp)), nil
+	}
+}
+
+func (api *API) PutManagedAWSSCP(ctx context.Context, request apispec.PutManagedAWSSCPRequestObject) (apispec.PutManagedAWSSCPResponseObject, error) {
+	sess := ctxSession(ctx)
+
+	if scp, err := sess.PutManagedAWSSCPByTeamAndAccountId(ctx, model.Id(request.TeamId), request.AccountId, app.PutManagedAWSSCPInput{
+		Content: request.Body.Content,
+	}); err != nil {
+		return nil, err
+	} else if scp == nil {
+		return nil, app.NotFoundError("No such account.")
+	} else {
+		return apispec.PutManagedAWSSCP200JSONResponse(AWSSCPFromModel(scp)), nil
+	}
+}
+
+func AWSAccessReportFromModel(report *model.AWSAccessReport) apispec.AWSAccessReport {
+	ret := apispec.AWSAccessReport{
+		Services: make([]apispec.AWSAccessReportService, 0, len(report.Services)),
+	}
+	for _, service := range report.Services {
+		out := apispec.AWSAccessReportService{
+			Name:      service.Name,
+			Namespace: service.Namespace,
+		}
+		if !service.LastAuthenticationTime.IsZero() {
+			out.LastAuthenticationTime = &service.LastAuthenticationTime
+		}
+		ret.Services = append(ret.Services, out)
+	}
+	return ret
+}
+
+func (api *API) GetAWSAccessReport(ctx context.Context, request apispec.GetAWSAccessReportRequestObject) (apispec.GetAWSAccessReportResponseObject, error) {
+	sess := ctxSession(ctx)
+
+	if report, err := sess.GetAWSAccessReportByTeamAndAccountId(ctx, model.Id(request.TeamId), request.AccountId); err != nil {
+		return nil, err
+	} else if report == nil {
+		return nil, app.NotFoundError("No such account.")
+	} else {
+		return apispec.GetAWSAccessReport200JSONResponse(AWSAccessReportFromModel(report)), nil
 	}
 }

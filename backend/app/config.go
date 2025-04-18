@@ -29,6 +29,7 @@ type Config struct {
 	S3                   AmazonS3API
 	S3Factory            AmazonS3APIFactory
 	OrganizationsFactory AWSOrganizationsAPIFactory
+	IAMFactory           AWSIAMAPIFactory
 	StripeAPIBackend     stripe.Backend
 }
 

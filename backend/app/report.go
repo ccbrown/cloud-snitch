@@ -126,18 +126,17 @@ type queueAWSIntegrationReportGenerationInput struct {
 	Duration                       time.Duration
 	Retention                      model.ReportRetention
 	MaxSourceBytesPerAccountRegion int64
+
+	// If true, the report generation won't actually be queued, but account recon will still be
+	// updated.
+	ReconOnly bool
 }
 
 func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input queueAWSIntegrationReportGenerationInput) error {
-	output, err := a.sts.AssumeRole(ctx, &sts.AssumeRoleInput{
-		RoleArn:         &input.Integration.RoleARN,
-		RoleSessionName: aws.String("cloud_snitch"),
-		ExternalId:      aws.String(input.Integration.TeamId.String()),
-	})
+	creds, err := a.assumeAWSIntegrationRole(ctx, input.Integration)
 	if err != nil {
 		return fmt.Errorf("failed to assume role: %w", err)
 	}
-	creds := output.Credentials
 
 	accountRecon := map[string]PutAWSIntegrationReconAccountInput{}
 
@@ -218,8 +217,10 @@ func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input que
 			})
 		}
 
-		if err := a.QueueMessages(ctx, messagesByQueueRegion); err != nil {
-			return fmt.Errorf("failed to queue messages: %w", err)
+		if !input.ReconOnly {
+			if err := a.QueueMessages(ctx, messagesByQueueRegion); err != nil {
+				return fmt.Errorf("failed to queue messages: %w", err)
+			}
 		}
 	}
 
