@@ -7,7 +7,7 @@ interface Props {
     className?: string;
     children?: React.ReactNode;
     label?: string;
-    subLabel?: string;
+    subLabel?: string | React.ReactNode;
     onChange: (checked: boolean) => void;
 }
 
@@ -24,7 +24,7 @@ export const Checkbox = (props: Props) => {
                         disabled={props.disabled}
                         checked={props.checked}
                         onChange={(e) => props.onChange(e.target.checked)}
-                        className="w-5 h-5 appearance-none rounded-md ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-majorelle-blue checked:bg-majorelle-blue cursor-pointer"
+                        className={`w-5 h-5 appearance-none rounded-md ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-majorelle-blue ${props.disabled ? 'checked:bg-gray-300' : 'checked:bg-majorelle-blue'} cursor-pointer`}
                     />
                     {props.checked && <CheckIcon className="pointer-events-none text-white absolute inset-0" />}
                 </div>
@@ -35,7 +35,7 @@ export const Checkbox = (props: Props) => {
                 )}
                 {props.label && (
                     <div className="flex flex-col">
-                        <label htmlFor={id} className="text-sm text-english-violet font-semibold cursor-pointer">
+                        <label htmlFor={id} className="text-sm label cursor-pointer">
                             {props.label}
                         </label>
                         {props.subLabel && (

@@ -87,8 +87,8 @@ export class RegionalStack extends Stack {
         const integrationTemplateUpload = new s3deploy.BucketDeployment(this, 'UploadIntegrationTemplate', {
             sources: [
                 s3deploy.Source.data(
-                    'integration-v2.cfn.yaml',
-                    fs.readFileSync(path.join(__dirname, '../../frontend/public/integration-v2.cfn.yaml'), 'utf8'),
+                    'integration-v3.cfn.yaml',
+                    fs.readFileSync(path.join(__dirname, '../../frontend/public/integration-v3.cfn.yaml'), 'utf8'),
                 ),
             ],
             destinationBucket: publicS3Bucket,

@@ -373,7 +373,7 @@ const Page = () => {
                 <div className="flex flex-col">
                     {billingProfile?.balance && (
                         <div>
-                            <strong className="text-english-violet font-semibold">Balance:</strong>{' '}
+                            <span className="label">Balance:</span>{' '}
                             <Tooltip
                                 content={
                                     <div className="w-sm">
@@ -393,7 +393,7 @@ const Page = () => {
                     ) : (
                         <>
                             <div>
-                                <strong className="text-english-violet font-semibold">Accounts:</strong>{' '}
+                                <span className="label">Accounts:</span>{' '}
                                 <Tooltip
                                     content={
                                         <div className="w-sm">
@@ -407,8 +407,8 @@ const Page = () => {
                             </div>
                             {subscription.price?.accountMonth && (
                                 <div>
-                                    <strong className="text-english-violet font-semibold">Monthly Price:</strong>{' '}
-                                    {subscription.price.accountMonth.text} per AWS account
+                                    <span className="label">Monthly Price:</span> {subscription.price.accountMonth.text}{' '}
+                                    per AWS account
                                 </div>
                             )}
                         </>

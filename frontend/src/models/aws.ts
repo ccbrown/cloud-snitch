@@ -3,7 +3,14 @@ import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 import { apiConfiguration } from './api';
 
-import { AwsApi, AWSAccount, AWSIntegration, AWSRegion, CreateAWSIntegrationInput } from '@/generated/api';
+import {
+    AwsApi,
+    AWSAccount,
+    AWSIntegration,
+    AWSRegion,
+    CreateAWSIntegrationInput,
+    UpdateAWSIntegrationInput,
+} from '@/generated/api';
 
 interface AwsState {
     integrations: Record<string, AWSIntegration>;
@@ -95,6 +102,14 @@ export const aws = createModel<RootModel>()({
             });
             dispatch.aws.putIntegration(resp);
             dispatch.aws.putTeamIntegrationId(payload.teamId, resp.id);
+        },
+        async updateIntegration(payload: { integrationId: string; input: UpdateAWSIntegrationInput }, state) {
+            const api = new AwsApi(apiConfiguration(state.api));
+            const resp = await api.updateAWSIntegration({
+                integrationId: payload.integrationId,
+                updateAWSIntegrationInput: payload.input,
+            });
+            dispatch.aws.putIntegration(resp);
         },
         async deleteIntegration(payload: { id: string; deleteAssociatedData: boolean }, state) {
             const api = new AwsApi(apiConfiguration(state.api));

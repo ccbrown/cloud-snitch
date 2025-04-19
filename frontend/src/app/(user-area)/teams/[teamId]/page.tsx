@@ -339,9 +339,7 @@ const Page = () => {
                                 <p>There&apos;s nothing here, but we can fix that!</p>
                                 {needsSubscriptionSetup && (
                                     <>
-                                        <p className="uppercase text-english-violet font-semibold">
-                                            Activate a subscription
-                                        </p>
+                                        <p className="uppercase label">Activate a subscription</p>
                                         <p>
                                             Head over to your team&apos;s{' '}
                                             <Link href={`/teams/${teamId}/settings/billing`} className="link">
@@ -354,9 +352,7 @@ const Page = () => {
                                 )}
                                 {needsAwsIntegrationSetup && (
                                     <>
-                                        <p className="uppercase text-english-violet font-semibold">
-                                            Integrate with your AWS account
-                                        </p>
+                                        <p className="uppercase label">Integrate with your AWS account</p>
                                         <p>
                                             Go to your team&apos;s{' '}
                                             <Link href={`/teams/${teamId}/settings/integrations`} className="link">

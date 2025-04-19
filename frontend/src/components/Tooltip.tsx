@@ -4,11 +4,12 @@ import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface Props {
+    disabled?: boolean;
     children: React.ReactNode;
     content: React.ReactNode;
 }
 
-export const Tooltip = ({ children, content }: Props) => {
+export const Tooltip = ({ disabled, children, content }: Props) => {
     const ref = useRef<HTMLSpanElement>(null);
     const [rect, setRect] = useState<DOMRect | undefined>();
     const [isHovered, setIsHovered] = useState(false);
@@ -24,6 +25,7 @@ export const Tooltip = ({ children, content }: Props) => {
             ref={ref}
         >
             {isHovered &&
+                !disabled &&
                 createPortal(
                     <div
                         className="absolute z-1000 translucent-snow text-dark-purple p-2 text-sm rounded-lg border-1 border-platinum -translate-x-1/2 -translate-y-full"

@@ -146,6 +146,11 @@ body {
         text-decoration-style: dotted;
     }
 
+    .label {
+        color: var(--color-english-violet);
+        font-weight: 600;
+    }
+
     .text-amethyst-gradient {
         background-image: linear-gradient(
             to right,
