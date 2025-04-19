@@ -17,9 +17,7 @@ export const Select = (props: Props) => {
     return (
         <Field className="my-2 grow">
             <div className="flex text-sm">
-                {props.label && (
-                    <Label className="block leading-6 text-english-violet font-semibold">{props.label}</Label>
-                )}
+                {props.label && <Label className="block leading-6 label">{props.label}</Label>}
             </div>
             <HeadlessSelect
                 disabled={props.disabled}

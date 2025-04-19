@@ -55,9 +55,7 @@ export const Header = (props: Props) => {
                             )}
                             {memberships && memberships.length > 1 && (
                                 <div className="p-2 border-b border-platinum">
-                                    <div className="p-2 font-semibold uppercase text-sm text-english-violet">
-                                        Switch Team
-                                    </div>
+                                    <div className="p-2 uppercase text-sm label">Switch Team</div>
                                     {memberships
                                         .filter((membership) => membership.team.id !== teamId)
                                         .map((membership) => (

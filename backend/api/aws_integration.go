@@ -15,6 +15,7 @@ func AWSIntegrationFromModel(integration *model.AWSIntegration) apispec.AWSInteg
 		CreationTime:                     integration.CreationTime,
 		TeamId:                           integration.TeamId.String(),
 		Name:                             integration.Name,
+		RoleArn:                          integration.RoleARN,
 		GetAccountNamesFromOrganizations: integration.GetAccountNamesFromOrganizations,
 		ManageScps:                       integration.ManageSCPs,
 	}

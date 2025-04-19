@@ -80,13 +80,12 @@ const Page = () => {
                     credits.
                 </p>
                 <p>
-                    <strong className="uppercase text-english-violet">Example:</strong> You sign up at the begining of
-                    the month and create your one-person team using an Individual plan. You then set up an AWS
-                    integration and begin ingesting CloudTrail data for 3 AWS accounts. This results in a charge of 3 x
-                    $0.99 = $2.97. Halfway through the month, you upgrade to the Team plan, resulting in a charge of 3 x
-                    ($9.99 - $0.99) x 50% = $13.50. You also decide to add another account, which results in an
-                    additional $9.99 x 50% = $4.98 charge. At the beginning of future billing cycles, you simply pay 4 x
-                    $9.99 = $39.96.
+                    <span className="uppercase label">Example:</span> You sign up at the begining of the month and
+                    create your one-person team using an Individual plan. You then set up an AWS integration and begin
+                    ingesting CloudTrail data for 3 AWS accounts. This results in a charge of 3 x $0.99 = $2.97. Halfway
+                    through the month, you upgrade to the Team plan, resulting in a charge of 3 x ($9.99 - $0.99) x 50%
+                    = $13.50. You also decide to add another account, which results in an additional $9.99 x 50% = $4.98
+                    charge. At the beginning of future billing cycles, you simply pay 4 x $9.99 = $39.96.
                 </p>
                 <p className="text-xs">*This example excludes any applicable taxes.</p>
             </div>

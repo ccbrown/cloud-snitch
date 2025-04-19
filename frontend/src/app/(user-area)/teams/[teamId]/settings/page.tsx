@@ -66,7 +66,7 @@ const Page = () => {
                 />
             </Dialog>
             <h2 className="mb-4 flex items-center gap-2">General Settings</h2>
-            <h3 className="text-english-violet font-semibold mb-2">Team Name</h3>
+            <h3 className="label mb-2">Team Name</h3>
             <div className="flex items-center gap-2">
                 <span>{team?.name}</span>
                 <PencilIcon

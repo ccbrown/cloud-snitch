@@ -14,7 +14,7 @@ const Page = () => {
             <div className="translucent-snow p-4 rounded-lg">
                 <h1>Cookie Policy</h1>
                 <div className="text-sm border-b border-platinum pb-4">
-                    <span className="uppercase text-english-violet font-semibold">Revision:</span> {REVISION}
+                    <span className="uppercase label">Revision:</span> {REVISION}
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
                     <p>

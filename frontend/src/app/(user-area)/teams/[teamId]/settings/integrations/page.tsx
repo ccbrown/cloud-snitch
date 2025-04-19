@@ -2,11 +2,12 @@
 
 import { clsx } from 'clsx';
 import Link from 'next/link';
-import { PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { Transition } from '@headlessui/react';
 
-import { Button, Checkbox, Dialog, ErrorMessage, TextField } from '@/components';
+import { Button, Checkbox, Dialog, ErrorMessage, TextField, Tooltip } from '@/components';
+import { AWSIntegration } from '@/generated/api';
 import { useCurrentTeam, useCurrentTeamId, useTeamAwsIntegrations } from '@/hooks';
 import { INTEGRATION_TEMPLATE_S3_URL } from '@/integration';
 import { useDispatch } from '@/store';
@@ -26,6 +27,7 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
     const [s3BucketName, setS3BucketName] = useState('');
     const [s3KeyPrefix, setS3KeyPrefix] = useState('');
     const [getAccountNamesFromOrganizations, setGetAccountNamesFromOrganizations] = useState(false);
+    const [manageScps, setManageScps] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
     const [queueReportGeneration, setQueueReportGeneration] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -47,6 +49,7 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
                         s3KeyPrefix,
                     },
                     getAccountNamesFromOrganizations,
+                    manageScps,
                     queueReportGeneration,
                 },
             });
@@ -61,6 +64,7 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
         ['CloudSnitchAWSAccountId', process.env.NEXT_PUBLIC_AWS_ACCOUNT_ID],
         ['TeamId', props.teamId],
         ['AllowOrganizationsAccess', getAccountNamesFromOrganizations ? 'Yes' : 'No'],
+        ['AllowSCPManagement', manageScps ? 'Yes' : 'No'],
         ['S3BucketName', s3BucketName],
         ['S3KeyPrefix', s3KeyPrefix],
     ];
@@ -120,9 +124,21 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
                         disabled={isBusy}
                         checked={getAccountNamesFromOrganizations}
                         onChange={setGetAccountNamesFromOrganizations}
-                        label="Get account names from AWS Organizations"
+                        label="Enable AWS Organizations integration"
                         subLabel="If you're using an organization trail, we recommend checking this box as this will allow us to show your account names in the UI."
                     />
+                    <Tooltip
+                        disabled={getAccountNamesFromOrganizations}
+                        content="⚠️ Requires AWS Organizations integration"
+                    >
+                        <Checkbox
+                            disabled={isBusy || !getAccountNamesFromOrganizations}
+                            checked={manageScps}
+                            onChange={setManageScps}
+                            label="Enable SCP management"
+                            subLabel="If you're deploying to an organization management account, checking this box will allow Cloud Snitch to enforce access controls through service control policies. For example, Cloud Snitch can be configured to block activity for services and regions that you don't use. Cloud Snitch will only be able to block actions and will not be able to read or modify existing policies or grant additional access."
+                        />
+                    </Tooltip>
                     <Button
                         disabled={!s3BucketName && !getAccountNamesFromOrganizations}
                         label="Continue"
@@ -233,6 +249,48 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
     );
 };
 
+interface EditIntegrationFormProps {
+    current: AWSIntegration;
+    onSuccess: () => void;
+}
+
+const EditIntegrationForm = ({ onSuccess, current }: EditIntegrationFormProps) => {
+    const dispatch = useDispatch();
+
+    const [isBusy, setIsBusy] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const [name, setName] = useState(current.name);
+
+    const doUpdate = async () => {
+        if (isBusy) {
+            return;
+        }
+        setIsBusy(true);
+
+        try {
+            await dispatch.aws.updateIntegration({
+                integrationId: current.id,
+                input: {
+                    name,
+                },
+            });
+            onSuccess();
+        } catch (err) {
+            setErrorMessage(err instanceof Error ? err.message : 'An unknown error occurred.');
+            setIsBusy(false);
+        }
+    };
+
+    return (
+        <form className="flex flex-col">
+            {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+            <TextField disabled={isBusy} label="Name" required value={name} onChange={setName} />
+            <Button disabled={isBusy} label="Save Changes" onClick={doUpdate} type="submit" className="mt-4" />
+        </form>
+    );
+};
+
 interface DeleteIntegrationFormProps {
     integrationId: string;
     onSuccess: () => void;
@@ -283,13 +341,22 @@ const Page = () => {
     const team = useCurrentTeam();
     const integrations = useTeamAwsIntegrations(teamId);
     const [isCreating, setIsCreating] = useState(false);
+    const [editIntegrationId, setEditIntegrationId] = useState<string>('');
     const [deleteIntegrationId, setDeleteIntegrationId] = useState<string>('');
     const hasSubscription = team?.entitlements?.individualFeatures;
+
+    const editIntegration =
+        editIntegrationId && integrations?.find((integration) => integration.id === editIntegrationId);
 
     return (
         <div>
             <Dialog isOpen={isCreating} onClose={() => setIsCreating(false)} title="Add AWS Integration">
                 <CreateIntegrationForm onSuccess={() => setIsCreating(false)} teamId={teamId} />
+            </Dialog>
+            <Dialog isOpen={!!editIntegration} onClose={() => setEditIntegrationId('')} title="Edit AWS Integration">
+                {editIntegration && (
+                    <EditIntegrationForm onSuccess={() => setEditIntegrationId('')} current={editIntegration} />
+                )}
             </Dialog>
             <Dialog
                 isOpen={!!deleteIntegrationId}
@@ -315,29 +382,45 @@ const Page = () => {
             ) : integrations.length === 0 ? (
                 <p>You currently have no AWS integrations.</p>
             ) : (
-                <table className="w-full text-left">
-                    <thead className="uppercase text-sm text-english-violet">
-                        <tr>
-                            <th>Name</th>
-                            <th>Created</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {integrations.map((integration) => (
-                            <tr key={integration.id}>
-                                <td>{integration.name}</td>
-                                <td>{integration.creationTime.toLocaleDateString()}</td>
-                                <td align="right" className="p-2">
-                                    <TrashIcon
-                                        className="h-[1.5rem] cursor-pointer hover:text-amethyst"
-                                        onClick={() => setDeleteIntegrationId(integration.id)}
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="flex flex-col gap-2">
+                    {integrations.map((integration) => (
+                        <div key={integration.id} className="flex flex-col border-1 border-platinum p-4 rounded-lg">
+                            <div className="flex gap-2 mb-2">
+                                <h3 className="font-bold grow">{integration.name}</h3>
+                                <PencilIcon
+                                    className="h-[1.5rem] cursor-pointer hover:text-amethyst"
+                                    onClick={() => setEditIntegrationId(integration.id)}
+                                />
+                                <TrashIcon
+                                    className="h-[1.5rem] cursor-pointer hover:text-amethyst"
+                                    onClick={() => setDeleteIntegrationId(integration.id)}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1 text-sm">
+                                <div>
+                                    <span className="label">Creation Time:</span>{' '}
+                                    {integration.creationTime.toLocaleString()}
+                                </div>
+                                <div>
+                                    <span className="label">Role ARN:</span> {integration.roleArn}
+                                </div>
+                                <div>
+                                    <span className="label">CloudTrail Trail:</span>{' '}
+                                    {integration.cloudtrailTrail
+                                        ? `s3://${integration.cloudtrailTrail.s3BucketName}${integration.cloudtrailTrail.s3KeyPrefix || ''}`
+                                        : 'None'}
+                                </div>
+                                <div>
+                                    <span className="label">AWS Organizations Integration:</span>{' '}
+                                    {integration.getAccountNamesFromOrganizations ? 'Yes' : 'No'}
+                                </div>
+                                <div>
+                                    <span className="label">Managed SCPs:</span> {integration.manageScps ? 'Yes' : 'No'}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
             {integrations && !hasSubscription && (
                 <div className="mt-4">

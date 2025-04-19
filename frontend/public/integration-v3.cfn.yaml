@@ -44,7 +44,7 @@
 # Typically we would use the AWS CDK instead of writing CloudFormation templates directly, but CDK
 # output is much less readable, and we feel it's important that you can review the templates you're
 # deploying with ease.
-Description: Cloud Snitch AWS Integration (V1)
+Description: Cloud Snitch AWS Integration (V3)
 #
 # These are the input parameters you'll need to provide us.
 Parameters:
@@ -61,6 +61,13 @@ Parameters:
             - 'Yes'
             - 'No'
         Description: Whether to allow read access to AWS Organizations data such as account names.
+    AllowSCPManagement:
+        Type: String
+        Default: 'No'
+        AllowedValues:
+            - 'Yes'
+            - 'No'
+        Description: Whether to allow the creation of additional service control policies for accounts.
     S3BucketName:
         Type: String
         Default: ''
@@ -75,6 +82,7 @@ Parameters:
 Conditions:
     HasOrganizationsAccess: !Equals [!Ref AllowOrganizationsAccess, 'Yes']
     HasS3BucketName: !Not [!Equals [!Ref S3BucketName, '']]
+    HasSCPManagement: !Equals [!Ref AllowSCPManagement, 'Yes']
 #
 # Now for the resources...
 Resources:
@@ -114,6 +122,67 @@ Resources:
                       Resource: '*'
                 Version: '2012-10-17'
             PolicyName: organizations
+            Roles:
+                - !Ref IntegrationRole
+    # If you specify that you want to allow Cloud Snitch to manage service control policies, we
+    # create a policy and attach it to the role.
+    IntegrationSCMManagementPolicy:
+        Condition: HasSCPManagement
+        Type: AWS::IAM::Policy
+        Properties:
+            PolicyDocument:
+                Statement:
+                    # These actions allow us to get general information about the organization.
+                    - Action:
+                          - organizations:ListAccounts
+                          - organizations:ListParents
+                          - organizations:ListRoots
+                          - iam:GenerateOrganizationsAccessReport
+                          - iam:GetOrganizationsAccessReport
+                      Effect: Allow
+                      Resource: '*'
+                    # Allow enumerating and attaching service control policies to accounts. Note
+                    # that attaching and detaching policies also requires permissions on the policy
+                    # resource, which are granted in the next statement.
+                    - Action:
+                          - organizations:AttachPolicy
+                          - organizations:DetachPolicy
+                          - organizations:ListPoliciesForTarget
+                      Effect: Allow
+                      Resource: !Sub 'arn:aws:organizations::${AWS::AccountId}:account/*'
+                      Condition:
+                          StringEquals:
+                              organizations:PolicyType: SERVICE_CONTROL_POLICY
+                    # Allow operating on service control policies that are tagged as being managed
+                    # by Cloud Snitch. Permission is not granted to operate on any other policies.
+                    - Action:
+                          - organizations:AttachPolicy
+                          - organizations:DetachPolicy
+                          - organizations:CreatePolicy
+                          - organizations:DescribePolicy
+                          - organizations:DeletePolicy
+                          - organizations:UpdatePolicy
+                      Effect: Allow
+                      Resource: '*'
+                      Condition:
+                          StringEquals:
+                              aws:ResourceTag/CloudSnitchManaged: 'true'
+                              organizations:PolicyType: SERVICE_CONTROL_POLICY
+                    # Lastly, we need to be able to assign the Cloud Snitch managed tag to policies,
+                    # but only on creation. We cannot add the tag to existing policies.
+                    - Action: organizations:TagResource
+                      Effect: Allow
+                      Resource: !Sub 'arn:aws:organizations::${AWS::AccountId}:policy/*'
+                      Condition:
+                          # There's an important subtlety at play here: When the policy is created,
+                          # aws:ResourceTag is based on the tags in the request. Otherwise, the
+                          # aws:ResourceTag is based on the tags already on the resource. This
+                          # allows us to have full control over our policies without being able to
+                          # touch existing policies.
+                          StringEquals:
+                              aws:ResourceTag/CloudSnitchManaged: 'true'
+                Version: '2012-10-17'
+            PolicyName: scp-management
             Roles:
                 - !Ref IntegrationRole
     # If you specify an S3 bucket name, we create a policy for read access and attach it to the role.

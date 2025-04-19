@@ -15,9 +15,7 @@ export const TextField = (props: Props) => {
     return (
         <Field className="grow">
             <div className="flex text-sm">
-                {props.label && (
-                    <Label className="block leading-6 text-english-violet font-semibold">{props.label}</Label>
-                )}
+                {props.label && <Label className="block leading-6 label">{props.label}</Label>}
             </div>
             <input
                 className={`block w-full rounded-md border-0 outline-none text-dark-purple mt-1 shadow-none ring-1 p-2 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-majorelle-blue sm:text-sm sm:leading-6 ${
