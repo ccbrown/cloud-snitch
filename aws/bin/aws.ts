@@ -3,7 +3,6 @@ import { App } from 'aws-cdk-lib';
 
 import { Environment } from '../lib/environment';
 import { GithubActionsStack } from '../lib/github-actions-stack';
-import { PhoneServiceStack } from '../lib/phone-service-stack';
 
 const app = new App();
 
@@ -58,14 +57,6 @@ new Environment(app, {
     stripeEventSourceName: 'aws.partner/stripe.com/ed_61SLGZb7XoQdDArer16SIEztBUSQ9uc1GwYb5aX7wIYK',
     stripePublishableKey:
         'pk_live_51R8r2XGsawEQFubmkaZnBAnZcaYT8lGqacq3iMTi0RMpKxbKR4LpDLBerS2WoP266mM2r0KWKFXWPnqgJlpqxUu900PH2XDT5j',
-});
-
-new PhoneServiceStack(app, 'phone-service', {
-    env: {
-        account: '449678530274',
-        region: 'us-east-1',
-    },
-    stackName: 'cloud-snitch-phone-service',
 });
 
 new GithubActionsStack(app, 'github-actions-dev', {
