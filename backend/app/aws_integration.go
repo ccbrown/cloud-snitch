@@ -389,9 +389,35 @@ func (a *App) awsSCPManagementIntegrationByTeamAndAccountId(ctx context.Context,
 	return nil, nil
 }
 
-const ManagedAWSSCPName = "CloudSnitchManagedSCP"
+const ManagedAWSSCPNamePrefix = "CloudSnitchManagedSCP-"
 
 const CloudSnitchManagedResourceTag = "CloudSnitchManaged"
+
+func (a *App) findManagedAWSSCP(ctx context.Context, orgsClient AWSOrganizationsAPI, accountId string) (*organizationstypes.PolicySummary, error) {
+	var nextToken *string
+	for {
+		output, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
+			Filter:    organizationstypes.PolicyTypeServiceControlPolicy,
+			TargetId:  aws.String(accountId),
+			NextToken: nextToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to list account scps: %w", err)
+		}
+
+		for _, policySummary := range output.Policies {
+			if policySummary.Name == nil || *policySummary.Name != ManagedAWSSCPNamePrefix+accountId {
+				continue
+			}
+			return &policySummary, nil
+		}
+
+		if output.NextToken == nil {
+			return nil, nil
+		}
+		nextToken = output.NextToken
+	}
+}
 
 func (s *Session) GetManagedAWSSCPByTeamAndAccountId(ctx context.Context, teamId model.Id, accountId string) (*model.AWSSCP, UserFacingError) {
 	if err := s.RequireTeamMember(ctx, teamId); err != nil {
@@ -413,36 +439,21 @@ func (s *Session) GetManagedAWSSCPByTeamAndAccountId(ctx context.Context, teamId
 		return nil, s.SanitizedError(fmt.Errorf("failed to create organizations client: %w", err))
 	}
 
-	var nextToken *string
-	for {
-		output, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
-			Filter:    organizationstypes.PolicyTypeServiceControlPolicy,
-			TargetId:  aws.String(accountId),
-			NextToken: nextToken,
-		})
-		if err != nil {
-			return nil, s.SanitizedError(fmt.Errorf("failed to list account scps: %w", err))
-		}
+	policySummary, err := s.app.findManagedAWSSCP(ctx, orgsClient, accountId)
+	if err != nil || policySummary == nil {
+		return nil, s.SanitizedError(err)
+	}
 
-		for _, policySummary := range output.Policies {
-			if policySummary.Name == nil || *policySummary.Name != ManagedAWSSCPName {
-				continue
-			}
-			if policy, err := orgsClient.DescribePolicy(ctx, &organizations.DescribePolicyInput{
-				PolicyId: policySummary.Id,
-			}); err != nil {
-				return nil, s.SanitizedError(fmt.Errorf("failed to describe policy: %w", err))
-			} else if policy.Policy != nil && policy.Policy.Content != nil {
-				return &model.AWSSCP{
-					Content: *policy.Policy.Content,
-				}, nil
-			}
-		}
-
-		if output.NextToken == nil {
-			return nil, nil
-		}
-		nextToken = output.NextToken
+	if policy, err := orgsClient.DescribePolicy(ctx, &organizations.DescribePolicyInput{
+		PolicyId: policySummary.Id,
+	}); err != nil {
+		return nil, s.SanitizedError(fmt.Errorf("failed to describe policy: %w", err))
+	} else if policy.Policy != nil && policy.Policy.Content != nil {
+		return &model.AWSSCP{
+			Content: *policy.Policy.Content,
+		}, nil
+	} else {
+		return nil, nil
 	}
 }
 
@@ -474,63 +485,45 @@ func (s *Session) PutManagedAWSSCPByTeamAndAccountId(ctx context.Context, teamId
 		Content: input.Content,
 	}
 
-	var nextToken *string
-	for {
-		output, err := orgsClient.ListPoliciesForTarget(ctx, &organizations.ListPoliciesForTargetInput{
-			Filter:    organizationstypes.PolicyTypeServiceControlPolicy,
-			TargetId:  aws.String(accountId),
-			NextToken: nextToken,
+	policySummary, err := s.app.findManagedAWSSCP(ctx, orgsClient, accountId)
+	if err != nil {
+		return nil, s.SanitizedError(err)
+	}
+
+	if policySummary != nil {
+		// Existing policy found, just update it.
+
+		if _, err := orgsClient.UpdatePolicy(ctx, &organizations.UpdatePolicyInput{
+			PolicyId: policySummary.Id,
+			Content:  aws.String(input.Content),
+		}); err != nil {
+			return nil, s.SanitizedError(fmt.Errorf("failed to update policy: %w", err))
+		}
+	} else {
+		// Create a new policy and attach it.
+
+		policy, err := orgsClient.CreatePolicy(ctx, &organizations.CreatePolicyInput{
+			Name:        aws.String(ManagedAWSSCPNamePrefix + accountId),
+			Description: aws.String("Managed by CloudSnitch (" + s.app.config.FrontendURL + "). Do not modify directly."),
+			Type:        organizationstypes.PolicyTypeServiceControlPolicy,
+			Content:     &input.Content,
+			Tags: []organizationstypes.Tag{
+				{
+					Key:   aws.String(CloudSnitchManagedResourceTag),
+					Value: aws.String("true"),
+				},
+			},
 		})
 		if err != nil {
-			return nil, s.SanitizedError(fmt.Errorf("failed to list account scps: %w", err))
+			return nil, s.SanitizedError(fmt.Errorf("failed to create policy: %w", err))
 		}
 
-		for _, policySummary := range output.Policies {
-			if policySummary.Name == nil || *policySummary.Name != ManagedAWSSCPName {
-				continue
-			}
-
-			// Existing policy found, just update it.
-
-			if _, err := orgsClient.UpdatePolicy(ctx, &organizations.UpdatePolicyInput{
-				PolicyId: policySummary.Id,
-				Content:  aws.String(input.Content),
-			}); err != nil {
-				return nil, s.SanitizedError(fmt.Errorf("failed to update policy: %w", err))
-			}
-
-			return ret, nil
+		if _, err := orgsClient.AttachPolicy(ctx, &organizations.AttachPolicyInput{
+			PolicyId: policy.Policy.PolicySummary.Id,
+			TargetId: aws.String(accountId),
+		}); err != nil {
+			return nil, s.SanitizedError(fmt.Errorf("failed to attach policy: %w", err))
 		}
-
-		if output.NextToken == nil {
-			break
-		}
-		nextToken = output.NextToken
-	}
-
-	// Create a new policy and attach it.
-
-	policy, err := orgsClient.CreatePolicy(ctx, &organizations.CreatePolicyInput{
-		Name:        aws.String(ManagedAWSSCPName),
-		Description: aws.String("Managed by CloudSnitch (" + s.app.config.FrontendURL + "). Do not modify directly."),
-		Type:        organizationstypes.PolicyTypeServiceControlPolicy,
-		Content:     &input.Content,
-		Tags: []organizationstypes.Tag{
-			{
-				Key:   aws.String(CloudSnitchManagedResourceTag),
-				Value: aws.String("true"),
-			},
-		},
-	})
-	if err != nil {
-		return nil, s.SanitizedError(fmt.Errorf("failed to create policy: %w", err))
-	}
-
-	if _, err := orgsClient.AttachPolicy(ctx, &organizations.AttachPolicyInput{
-		PolicyId: policy.Policy.PolicySummary.Id,
-		TargetId: aws.String(accountId),
-	}); err != nil {
-		return nil, s.SanitizedError(fmt.Errorf("failed to attach policy: %w", err))
 	}
 
 	return ret, nil
