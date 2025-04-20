@@ -155,7 +155,7 @@ export class RuleSet {
             policy.Statement.push({
                 Sid: 'RegionAllowlist',
                 Effect: 'Deny',
-                // Take special care with this core global services. They either work in all regions or not at all.
+                // Take special care with these core global services. They either work in all regions or not at all.
                 Action: this.hasRegionInAllowlist('us-east-1') ? '*' : undefined,
                 NotAction: this.hasRegionInAllowlist('us-east-1')
                     ? undefined
