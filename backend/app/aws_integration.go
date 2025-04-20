@@ -210,7 +210,7 @@ func (s *Session) CreateAWSIntegration(ctx context.Context, input CreateAWSInteg
 	{
 		today := time.Now().Truncate(24 * time.Hour)
 		for i := 0; i < 7; i++ {
-			if err := s.app.queueAWSIntegrationReportGeneration(ctx, queueAWSIntegrationReportGenerationInput{
+			if err := s.app.doReconAndQueueAWSIntegrationReportGeneration(ctx, doReconAndQueueAWSIntegrationReportGenerationInput{
 				Integration: integration,
 				StartTime:   today.Add(-time.Duration(i) * 24 * time.Hour),
 				Duration:    24 * time.Hour,
@@ -320,6 +320,7 @@ type PutAWSIntegrationReconInput struct {
 	TeamId           model.Id
 	Time             time.Time
 	Accounts         []PutAWSIntegrationReconAccountInput
+	CanManageSCPs    bool
 }
 
 type PutAWSIntegrationReconAccountInput struct {
@@ -333,6 +334,7 @@ func (a *App) PutAWSIntegrationRecon(ctx context.Context, input PutAWSIntegratio
 		TeamId:           input.TeamId,
 		Time:             input.Time,
 		ExpirationTime:   input.Time.Add(3 * 24 * time.Hour),
+		CanManageSCPs:    input.CanManageSCPs,
 		Accounts:         make([]model.AWSIntegrationAccountRecon, len(input.Accounts)),
 	}
 	for i, account := range input.Accounts {
