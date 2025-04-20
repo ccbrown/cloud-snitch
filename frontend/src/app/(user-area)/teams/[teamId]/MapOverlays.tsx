@@ -371,9 +371,7 @@ export const MapOverlays = (props: Props) => {
                             e.originalEvent.preventDefault();
                             e.originalEvent.stopPropagation();
                         }}
-                        className={
-                            'hover:z-200 transition-all duration-200 ease-in-out baz cursor-pointer' + extraClasses
-                        }
+                        className={'hover:z-200 transition-all duration-200 ease-in-out cursor-pointer' + extraClasses}
                     >
                         <MarkerContent
                             data={marker}
