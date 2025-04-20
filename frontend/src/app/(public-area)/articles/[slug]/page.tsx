@@ -55,7 +55,12 @@ export default async function Page({ params }: Props) {
                     <ul className="list-disc mt-4 pl-6">
                         {article.relatedLinks.map((item, index) => (
                             <li key={index}>
-                                <Link href={item.url} target="_blank" rel="noopener noreferrer" className="external-link">
+                                <Link
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="external-link"
+                                >
                                     {item.title}
                                 </Link>
                             </li>

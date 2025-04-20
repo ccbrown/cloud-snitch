@@ -1,6 +1,7 @@
 export { BackgroundAnimation } from './BackgroundAnimation';
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
+export { ChipEditor } from './ChipEditor';
 export { Dialog } from './Dialog';
 export { DurationDropdown } from './DurationDropdown';
 export { ErrorMessage } from './ErrorMessage';

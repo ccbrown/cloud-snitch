@@ -1,11 +1,12 @@
 'use client';
 
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Map as WorldMap, MapRef } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { DurationDropdown, FilterDropdown } from '@/components';
+import { Dialog, DurationDropdown, FilterDropdown } from '@/components';
 import {
     useAwsRegionsMap,
     useCombinedReport,
@@ -23,6 +24,7 @@ import { Header } from './Header';
 import { ContextPanel } from './ContextPanel';
 import { maxZoomForClusterRect, minZoomForClusterRect, MapOverlays } from './MapOverlays';
 import { NavigationPanel } from './NavigationPanel';
+import { Rules } from './Rules';
 import { isEqualSelection, useSelection, Selection } from './selection';
 
 interface IdAndName {
@@ -41,6 +43,8 @@ const Page = () => {
             : undefined;
         return memberships && memberships[teamId]?.role === TeamMembershipRole.Administrator;
     });
+
+    const [isRulesOpen, setIsRulesOpen] = useState(false);
 
     const [map, setMap] = useState<MapRef | null>(null);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -256,6 +260,9 @@ const Page = () => {
         teamAwsIntegrationsIfAdminAndNoReports && teamAwsIntegrationsIfAdminAndNoReports.length === 0;
     const needsSetup = needsSubscriptionSetup || needsAwsIntegrationSetup;
 
+    const canManageScps =
+        teamAwsAccountsMap && [...teamAwsAccountsMap.values()].some((account) => account.canManageScps);
+
     return (
         <div className="w-full h-screen relative">
             <div className="absolute top-0 left-0 w-full h-full isolate">
@@ -311,6 +318,18 @@ const Page = () => {
                             availableEndTime={maxUnfilteredReportEndTime}
                             onChange={setDurationSeconds}
                         />
+                        <Dialog isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} title="Rules">
+                            <Rules />
+                        </Dialog>
+                        {canManageScps && (
+                            <div
+                                className="inline-flex items-center gap-2 rounded-md bg-mint hover:bg-emerald transition-all duration-200 ease-in-out ml-8 py-1.5 px-3 text-sm/6 font-semibold text-snow cursor-pointer"
+                                onClick={() => setIsRulesOpen(true)}
+                            >
+                                <ShieldCheckIcon className="h-[1.2rem]" />
+                                Rules
+                            </div>
+                        )}
                     </div>
                 </Header>
                 <main className="w-full grow p-4 flex flex-row min-h-0 pointer-events-none relative">

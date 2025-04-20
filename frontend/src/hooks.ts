@@ -5,6 +5,7 @@ import {
     AWSAccount,
     AWSIntegration,
     AWSRegion,
+    AWSSCP,
     Report,
     TeamBillingProfile,
     TeamPaymentMethod,
@@ -475,4 +476,14 @@ export const useCurrentTeamPrincipalSettings = (principalKey: string): TeamPrinc
         }
         return undefined;
     });
+};
+
+export const useManagedAwsScp = (teamId: string, accountId: string): AWSSCP | undefined | null => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch.aws.fetchManagedScpByTeamAndAccountId({ teamId, accountId });
+    }, [teamId, accountId, dispatch]);
+
+    return useSelector((state) => state.aws.managedScps[accountId]);
 };

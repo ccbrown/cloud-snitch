@@ -1,14 +1,16 @@
 import { createModel } from '@rematch/core';
 
 import { RootModel } from '.';
-import { apiConfiguration } from './api';
+import { apiConfiguration, ApiError } from './api';
 
 import {
     AwsApi,
     AWSAccount,
     AWSIntegration,
     AWSRegion,
+    AWSSCP,
     CreateAWSIntegrationInput,
+    PutAWSSCPInput,
     UpdateAWSIntegrationInput,
 } from '@/generated/api';
 
@@ -18,6 +20,7 @@ interface AwsState {
     regions: Record<string, AWSRegion>;
     accounts: Record<string, AWSAccount>;
     teamAccountIds: Record<string, string[]>;
+    managedScps: Record<string, AWSSCP | null>;
 }
 
 export const aws = createModel<RootModel>()({
@@ -27,6 +30,7 @@ export const aws = createModel<RootModel>()({
         regions: {},
         accounts: {},
         teamAccountIds: {},
+        managedScps: {},
     } as AwsState,
     reducers: {
         putIntegration(state, integration: AWSIntegration) {
@@ -43,6 +47,9 @@ export const aws = createModel<RootModel>()({
         },
         putAccount(state, account: AWSAccount) {
             state.accounts[account.id] = account;
+        },
+        putManagedScp(state, accountId: string, scp: AWSSCP | null) {
+            state.managedScps[accountId] = scp;
         },
         setTeamAccountIds(state, teamId: string, accountIds: string[]) {
             state.teamAccountIds[teamId] = accountIds;
@@ -93,6 +100,31 @@ export const aws = createModel<RootModel>()({
                 teamId,
                 resp.map((a) => a.id),
             );
+        },
+        async fetchManagedScpByTeamAndAccountId(payload: { teamId: string; accountId: string }, state) {
+            const api = new AwsApi(apiConfiguration(state.api));
+            try {
+                const resp = await api.getManagedAWSSCP(payload);
+                dispatch.aws.putManagedScp(payload.accountId, resp);
+            } catch (err) {
+                if (err instanceof ApiError && err.status === 404) {
+                    dispatch.aws.putManagedScp(payload.accountId, null);
+                } else {
+                    throw err;
+                }
+            }
+        },
+        async putManagedScpByTeamAndAccountId(
+            payload: { teamId: string; accountId: string; input: PutAWSSCPInput },
+            state,
+        ) {
+            const api = new AwsApi(apiConfiguration(state.api));
+            const resp = await api.putManagedAWSSCP({
+                teamId: payload.teamId,
+                accountId: payload.accountId,
+                putAWSSCPInput: payload.input,
+            });
+            dispatch.aws.putManagedScp(payload.accountId, resp);
         },
         async createIntegration(payload: { teamId: string; input: CreateAWSIntegrationInput }, state) {
             const api = new AwsApi(apiConfiguration(state.api));
