@@ -80,7 +80,7 @@ func (a *App) QueueTeamReportGeneration(ctx context.Context, input QueueTeamRepo
 		return fmt.Errorf("failed to get aws integrations: %w", err)
 	}
 	for _, integration := range integrations {
-		if err := a.queueAWSIntegrationReportGeneration(ctx, queueAWSIntegrationReportGenerationInput{
+		if err := a.doReconAndQueueAWSIntegrationReportGeneration(ctx, doReconAndQueueAWSIntegrationReportGenerationInput{
 			Integration:                    integration,
 			StartTime:                      input.StartTime,
 			Duration:                       input.Duration,
@@ -111,7 +111,7 @@ func (s *Session) QueueAWSIntegrationReportGeneration(ctx context.Context, input
 	} else if integration == nil {
 		return NotFoundError("No such AWS integration.")
 	}
-	return s.SanitizedError(s.app.queueAWSIntegrationReportGeneration(ctx, queueAWSIntegrationReportGenerationInput{
+	return s.SanitizedError(s.app.doReconAndQueueAWSIntegrationReportGeneration(ctx, doReconAndQueueAWSIntegrationReportGenerationInput{
 		Integration:                    integration,
 		StartTime:                      input.StartTime,
 		Duration:                       input.Duration,
@@ -120,7 +120,7 @@ func (s *Session) QueueAWSIntegrationReportGeneration(ctx context.Context, input
 	}))
 }
 
-type queueAWSIntegrationReportGenerationInput struct {
+type doReconAndQueueAWSIntegrationReportGenerationInput struct {
 	Integration                    *model.AWSIntegration
 	StartTime                      time.Time
 	Duration                       time.Duration
@@ -132,7 +132,7 @@ type queueAWSIntegrationReportGenerationInput struct {
 	ReconOnly bool
 }
 
-func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input queueAWSIntegrationReportGenerationInput) error {
+func (a *App) doReconAndQueueAWSIntegrationReportGeneration(ctx context.Context, input doReconAndQueueAWSIntegrationReportGenerationInput) error {
 	creds, err := a.assumeAWSIntegrationRole(ctx, input.Integration)
 	if err != nil {
 		return fmt.Errorf("failed to assume role: %w", err)
@@ -233,6 +233,7 @@ func (a *App) queueAWSIntegrationReportGeneration(ctx context.Context, input que
 		TeamId:           input.Integration.TeamId,
 		Time:             time.Now(),
 		Accounts:         accountRecons,
+		CanManageSCPs:    input.Integration.ManageSCPs,
 	}); err != nil {
 		return fmt.Errorf("failed to put aws integration recon: %w", err)
 	}
