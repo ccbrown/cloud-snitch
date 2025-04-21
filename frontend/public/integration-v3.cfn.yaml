@@ -134,20 +134,22 @@ Resources:
                 Statement:
                     # These actions allow us to get general information about the organization.
                     - Action:
+                          - organizations:DescribePolicy
                           - organizations:ListAccounts
+                          - organizations:ListChildren
                           - organizations:ListParents
+                          - organizations:ListPoliciesForTarget
                           - organizations:ListRoots
                           - iam:GenerateOrganizationsAccessReport
                           - iam:GetOrganizationsAccessReport
                       Effect: Allow
                       Resource: '*'
-                    # Allow enumerating and attaching service control policies to accounts. Note
-                    # that attaching and detaching policies also requires permissions on the policy
-                    # resource, which are granted in the next statement.
+                    # Allow attaching service control policies to accounts. Note that attaching and
+                    # detaching policies also requires permissions on the policy resource, which are
+                    # granted in the next statement.
                     - Action:
                           - organizations:AttachPolicy
                           - organizations:DetachPolicy
-                          - organizations:ListPoliciesForTarget
                       Effect: Allow
                       Resource: !Sub 'arn:aws:organizations::${AWS::AccountId}:account/*'
                       Condition:
@@ -159,7 +161,6 @@ Resources:
                           - organizations:AttachPolicy
                           - organizations:DetachPolicy
                           - organizations:CreatePolicy
-                          - organizations:DescribePolicy
                           - organizations:DeletePolicy
                           - organizations:UpdatePolicy
                       Effect: Allow

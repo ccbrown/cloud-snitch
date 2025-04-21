@@ -1,11 +1,11 @@
 import { clsx } from 'clsx';
-import { useEffect, useMemo, useState } from 'react';
-import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ChevronRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 
 import { awsServices } from '@/aws';
-import { Button, ChipEditor, Dialog, ErrorMessage } from '@/components';
+import { Button, ChipEditor, Dialog, ErrorMessage, SuccessMessage } from '@/components';
 import { AWSAccount } from '@/generated/api';
 import { useAwsRegions, useCurrentTeamId, useManagedAwsScp, useTeamAwsAccountsMap } from '@/hooks';
 import { RuleSet } from '@/rules';
@@ -70,7 +70,11 @@ interface AccountPageProps {
 }
 
 const AccountPage = ({ account, onBack }: AccountPageProps) => {
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const [isPreviewing, setIsPreviewing] = useState(false);
+    const dispatch = useDispatch();
     const awsRegions = useAwsRegions();
     const teamId = useCurrentTeamId();
     const scp = useManagedAwsScp(teamId, account.id);
@@ -95,13 +99,85 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
         }
     }, [scpRuleSet]);
 
+    const suggest = useCallback(() => {
+        const impl = async () => {
+            if (isLoadingSuggestions) {
+                return;
+            }
+            setIsLoadingSuggestions(true);
+            setErrorMessage('');
+            setSuccessMessage('');
+
+            try {
+                const [reports, awsAccessReport] = await Promise.all([
+                    dispatch.reports.fetchTeamReports(teamId),
+                    dispatch.aws.fetchAccessReportByTeamAndAccountId({
+                        teamId,
+                        accountId: account.id,
+                    }),
+                ]);
+
+                const ruleSet = new RuleSet();
+
+                for (const report of reports) {
+                    if (report.size > 0 && report.scope.aws.accountId === account.id) {
+                        ruleSet.addRegionToAllowlist(report.scope.aws.region);
+                    }
+                }
+
+                const cutoffDate = new Date();
+                cutoffDate.setMonth(cutoffDate.getMonth() - 2);
+
+                for (const service of awsAccessReport.services) {
+                    if (service.lastAuthenticationTime && service.lastAuthenticationTime > cutoffDate) {
+                        ruleSet.addServiceToAllowlist(service.namespace);
+                    }
+                }
+
+                setRuleSet(ruleSet);
+                setSuccessMessage(
+                    'Based on your recent account activity, we recommend the following rules. Please review them carefully and add or remove items as needed.',
+                );
+            } catch (err) {
+                setErrorMessage(err instanceof Error ? err.message : 'An unknown error occurred.');
+            } finally {
+                setIsLoadingSuggestions(false);
+            }
+        };
+        impl();
+    }, [
+        isLoadingSuggestions,
+        setIsLoadingSuggestions,
+        dispatch,
+        teamId,
+        account,
+        setErrorMessage,
+        setSuccessMessage,
+        setRuleSet,
+    ]);
+
     return (
         <div className="flex flex-col gap-4">
             {scp === undefined ? (
                 <p>Loading...</p>
             ) : (
                 <>
-                    <p className="font-semibold">{account.name ? `${account.name} (${account.id})` : account.id}</p>
+                    <div className="flex gap-2 items-end">
+                        <div className="grow flex flex-col">
+                            <div className="font-semibold">{account.name || account.id}</div>
+                            {account.name && <span className="text-xs">{account.id}</span>}
+                        </div>
+                        <div
+                            className={`text-sm flex gap-1 items-center ${isLoadingSuggestions ? 'opacity-50' : 'cursor-pointer hover:text-majorelle-blue'} transition-all duration-200 ease-in-out`}
+                            onClick={suggest}
+                        >
+                            <SparklesIcon className="h-[1rem]" />
+                            <span>{isLoadingSuggestions ? 'Please wait...' : 'Suggest Changes'}</span>
+                        </div>
+                    </div>
+
+                    {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+                    {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
 
                     <div className="border border-english-violet/60 bg-white/20 text-sm rounded-lg p-2 flex flex-col gap-2">
                         <div>
