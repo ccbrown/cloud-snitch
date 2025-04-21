@@ -107,7 +107,11 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                         <div>
                             <span className="label">Region allowlist: </span>
                             <ChipEditor
-                                options={awsRegions.map((region) => ({ label: region.id, value: region.id }))}
+                                options={awsRegions.map((region) => ({
+                                    label: region.id,
+                                    value: region.id,
+                                    altLabel: region.name,
+                                }))}
                                 before={scpRuleSet?.regionAllowlist?.regions || new Set()}
                                 after={ruleSet.regionAllowlist?.regions || new Set()}
                                 onAdd={(region) => {
@@ -150,6 +154,7 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                                 options={awsServices.map((service) => ({
                                     label: service.namespace,
                                     value: service.namespace,
+                                    altLabel: service.name,
                                 }))}
                                 before={scpRuleSet?.serviceAllowlist?.services || new Set()}
                                 after={ruleSet.serviceAllowlist?.services || new Set()}

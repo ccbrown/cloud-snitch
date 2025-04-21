@@ -81,6 +81,7 @@ export const reports = createModel<RootModel>()({
                 teamId,
                 resp.map((r) => r.id),
             );
+            return resp;
         },
         async queueTeamReportGeneration(input: { teamId: string; input: QueueTeamReportGenerationInput }, state) {
             const api = new TeamApi(apiConfiguration(state.api));

@@ -1,11 +1,14 @@
 'use client';
 
 import { PlusCircleIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
+
+import { Tooltip } from '@/components';
 
 interface Option {
     label: string;
+    altLabel?: string;
     value: string;
 }
 
@@ -52,23 +55,32 @@ export const ChipEditor = (props: Props) => {
                 const isRemoved = props.before.has(option.value) && !props.after.has(option.value);
 
                 return (
-                    <span
+                    <Tooltip
                         key={option.value}
-                        className={`${isAdded ? addedChip : isRemoved ? removedChip : neutralChip}`}
+                        disabled={!option.altLabel && !isAdded && !isRemoved}
+                        content={
+                            <div className="text-xs">
+                                {option.altLabel && <div>{option.altLabel}</div>}
+                                {isAdded && <div className="text-mint">Added</div>}
+                                {isRemoved && <div className="text-indian-red">Removed</div>}
+                            </div>
+                        }
                     >
-                        {option.label}
-                        {props.after.has(option.value) ? (
-                            <XMarkIcon
-                                className="h-[0.8rem] inline-block ml-1 cursor-pointer"
-                                onClick={() => props.onRemove(option.value)}
-                            />
-                        ) : (
-                            <PlusIcon
-                                className="h-[0.8rem] inline-block ml-1 cursor-pointer"
-                                onClick={() => props.onAdd(option.value)}
-                            />
-                        )}
-                    </span>
+                        <span className={`${isAdded ? addedChip : isRemoved ? removedChip : neutralChip}`}>
+                            {option.label}
+                            {props.after.has(option.value) ? (
+                                <XMarkIcon
+                                    className="h-[0.8rem] inline-block ml-1 cursor-pointer"
+                                    onClick={() => props.onRemove(option.value)}
+                                />
+                            ) : (
+                                <PlusIcon
+                                    className="h-[0.8rem] inline-block ml-1 cursor-pointer"
+                                    onClick={() => props.onAdd(option.value)}
+                                />
+                            )}
+                        </span>
+                    </Tooltip>
                 );
             })}
             {isAdding ? (
@@ -77,8 +89,10 @@ export const ChipEditor = (props: Props) => {
                         (option) => !props.before.has(option.value) && !props.after.has(option.value),
                     )}
                     onChange={(value) => {
-                        props.onAdd(value);
-                        setIsAdding(false);
+                        if (value) {
+                            props.onAdd(value);
+                            setIsAdding(false);
+                        }
                     }}
                     onClose={() => setIsAdding(false)}
                 />
@@ -94,52 +108,58 @@ export const ChipEditor = (props: Props) => {
 
 interface InlineComboboxProps {
     options: Option[];
-    value?: string;
     onChange?: (value: string) => void;
     onClose?: () => void;
 }
 
-const InlineCombobox = (props: InlineComboboxProps) => {
+const InlineCombobox = ({ options, onChange, onClose }: InlineComboboxProps) => {
     const [query, setQuery] = useState('');
 
-    const filteredOptions = props.options
-        .filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
-        .sort((a, b) => a.label.localeCompare(b.label));
+    const filteredOptions = useMemo(
+        () =>
+            options
+                .filter(
+                    (option) =>
+                        option.label.toLowerCase().includes(query.toLowerCase()) ||
+                        option.altLabel?.toLowerCase().includes(query.toLowerCase()),
+                )
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        [options, query],
+    );
 
     return (
         <Combobox
-            value={props.value}
-            onChange={props.onChange}
+            virtual={{ options: filteredOptions }}
+            onChange={(option: Option) => onChange?.(option.value)}
             onClose={() => {
                 setQuery('');
-                props.onClose?.();
+                onClose?.();
             }}
             immediate
         >
             <ComboboxInput
                 autoFocus
-                displayValue={(value) => props.options.find((option) => option.value === value)?.label || ''}
                 onChange={(event) => setQuery(event.target.value)}
                 onBlur={() => {
                     setQuery('');
-                    props.onClose?.();
+                    onClose?.();
                 }}
                 className="bg-english-violet px-2 py-0.5 mx-0.5 leading-none rounded-md text-xs font-semibold text-snow focus:outline-none"
             />
             <ComboboxOptions
                 anchor="bottom"
-                className="empty:invisible rounded-md text-snow bg-english-violet/80 backdrop-blur-md"
+                className="empty:invisible rounded-md text-snow bg-english-violet/80 backdrop-blur-md p-1 w-3xs"
                 static
             >
-                {filteredOptions.map((option) => (
+                {({ option }) => (
                     <ComboboxOption
-                        key={option.value}
-                        value={option.value}
-                        className="cursor-pointer text-xs px-2 py-0.5 hover:bg-white/20"
+                        value={option}
+                        className="cursor-pointer text-xs px-2 py-1 hover:bg-white/20 rounded-md w-full flex flex-col"
                     >
-                        {option.label}
+                        <div className="font-semibold">{option.label}</div>
+                        {option.altLabel && <div>{option.altLabel}</div>}
                     </ComboboxOption>
-                ))}
+                )}
             </ComboboxOptions>
         </Combobox>
     );
