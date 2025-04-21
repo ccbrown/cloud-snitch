@@ -1,5 +1,9 @@
 const article = {
     title: 'Capital One Data Breach – A Cautionary Tale',
+    author: {
+        name: 'Chris',
+        image: '/images/chris.jpg',
+    },
     description:
         'Capital One lost hundreds of millions after being notified by a third party of an intruder that had been lurking in their AWS account for four months.',
     date: new Date(Date.parse('2025-04-15T23:10:00-04:00')),

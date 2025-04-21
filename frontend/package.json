@@ -19,6 +19,7 @@
         "@rematch/loading": "^2.1.2",
         "@stripe/react-stripe-js": "^3.5.1",
         "@stripe/stripe-js": "^6.1.0",
+        "@types/react-syntax-highlighter": "^15.5.13",
         "@types/three": "^0.174.0",
         "clsx": "^2.1.1",
         "immer": "^10.1.1",
@@ -32,6 +33,7 @@
         "react-map-gl": "^8.0.1",
         "react-markdown": "^10.1.0",
         "react-redux": "^9.2.0",
+        "react-syntax-highlighter": "^15.6.1",
         "redux": "^5.0.1",
         "three": "^0.174.0"
     },

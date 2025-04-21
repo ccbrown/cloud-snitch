@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { articles } from '.';
@@ -19,14 +20,25 @@ const Page = () => {
                 <div className="flex flex-col gap-4 mt-4">
                     {sortedArticles.map(([slug, article]) => (
                         <div className="border-1 border-platinum rounded-lg p-4" key={slug}>
-                            <h2>{article.title}</h2>
-                            <div className="text-sm text-english-violet">
-                                {article.date.toLocaleDateString('en-US', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                })}
+                            <div className="flex gap-4 items-center">
+                                <Image
+                                    src={article.author.image}
+                                    alt={`By ${article.author.name}`}
+                                    height={48}
+                                    width={48}
+                                    className="rounded-full h-[48px] w-[48px]"
+                                />
+                                <div>
+                                    <h2>{article.title}</h2>
+                                    <div className="text-sm text-english-violet">
+                                        {article.date.toLocaleDateString('en-US', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </div>
+                                </div>
                             </div>
                             <p>{article.description}</p>
                             <div className="flex">
