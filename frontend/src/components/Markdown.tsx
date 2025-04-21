@@ -29,7 +29,7 @@ export const Markdown = ({ children }: Props) => {
                     },
                     blockquote(props) {
                         const { children } = props;
-                        return <blockquote className="border-l-2 border-platinum pl-1">{children}</blockquote>;
+                        return <blockquote className="quote">{children}</blockquote>;
                     },
                     code(props) {
                         const { children, node } = props;

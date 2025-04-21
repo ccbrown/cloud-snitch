@@ -60,8 +60,8 @@ const Page = () => {
                     </p>
                     <p className="text-sm mt-4">Check out our features to learn how we do it.</p>
                     <div className="grow" />
-                    <div className="flex mt-4">
-                        <Link href="/features" className="snow-button flex grow-0 items-center whitespace-nowrap mt-4">
+                    <div className="flex mt-8">
+                        <Link href="/features" className="snow-button flex grow-0 items-center whitespace-nowrap">
                             Learn More
                             <ChevronRightIcon className="h-4 w-4 ml-2" />
                         </Link>
@@ -82,13 +82,16 @@ const Page = () => {
                         had been lurking in their AWS account for four months.
                     </p>
                     <div className="grow" />
-                    <div className="flex mt-4">
+                    <div className="flex mt-8 items-center gap-2">
                         <Link
                             href="/articles/capital-one-data-breach"
-                            className="snow-button flex grow-0 items-center whitespace-nowrap mt-4"
+                            className="snow-button flex grow-0 items-center whitespace-nowrap"
                         >
                             Read More
                             <ChevronRightIcon className="h-4 w-4 ml-2" />
+                        </Link>
+                        <Link href="/articles" className="text-sm underline">
+                            More Articles
                         </Link>
                     </div>
                 </div>

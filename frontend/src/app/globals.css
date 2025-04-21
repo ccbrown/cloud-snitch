@@ -201,4 +201,9 @@ body {
         padding: 0 calc(var(--spacing) * 1);
         font-size: var(--text-sm);
     }
+
+    .quote {
+        padding-left: calc(var(--spacing) * 1);
+        border-left: 2px solid var(--color-platinum);
+    }
 }

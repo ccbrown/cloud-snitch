@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 
 import { awsServices } from '@/aws';
-import { Button, ChipEditor, Dialog, ErrorMessage, SuccessMessage } from '@/components';
+import { Button, ChipEditor, Dialog, ErrorMessage, SuccessMessage, SyntaxHighlighter } from '@/components';
 import { AWSAccount } from '@/generated/api';
 import { useAwsRegions, useCurrentTeamId, useManagedAwsScp, useTeamAwsAccountsMap } from '@/hooks';
 import { RuleSet } from '@/rules';
@@ -56,9 +56,12 @@ const PolicyPreview = ({ account, onSuccess, ruleSet }: PolicyPreviewProps) => {
                 Please exercise caution as it is possible to lock yourself out or disrupt services running in the
                 account.
             </p>
-            <pre className="p-2 border-1 border-english-violet/60 rounded-lg text-sm max-h-[50vh] overflow-auto">
-                <code>{prettyContent}</code>
-            </pre>
+            <SyntaxHighlighter
+                language="json"
+                className="p-2 border-1 border-english-violet/60 rounded-lg text-sm max-h-[50vh] overflow-auto"
+            >
+                {prettyContent}
+            </SyntaxHighlighter>
             <Button disabled={isBusy} label="Apply Policy" onClick={() => apply()} />
         </div>
     );

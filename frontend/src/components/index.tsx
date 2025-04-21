@@ -15,6 +15,7 @@ export { IndividualSubscriptionBox, TeamSubscriptionBox } from './SubscriptionBo
 export { Select } from './Select';
 export { SubscriptionSelector } from './SubscriptionSelector';
 export { SuccessMessage } from './SuccessMessage';
+export { SyntaxHighlighter } from './SyntaxHighlighter';
 export { TabLayout } from './TabLayout';
 export { TextArea } from './TextArea';
 export { TextField } from './TextField';

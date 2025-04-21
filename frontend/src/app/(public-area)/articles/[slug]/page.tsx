@@ -1,4 +1,6 @@
+import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { articles } from '..';
@@ -35,16 +37,33 @@ export default async function Page({ params }: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="translucent-snow p-4 rounded-lg [&_p]:my-4">
-                <h1>{article.title}</h1>
-                <div className="text-sm text-english-violet">
-                    Published{' '}
-                    {article.date.toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                    })}
+            <div className="translucent-snow p-4 rounded-lg flex flex-col gap-4">
+                <div className="text-sm">
+                    <Link href="/articles" className="link flex gap-1 items-center">
+                        More Articles
+                        <ArrowUturnLeftIcon className="h-[1rem]" />
+                    </Link>
+                </div>
+                <div className="flex gap-4 items-center">
+                    <Image
+                        src={article.author.image}
+                        alt={`By ${article.author.name}`}
+                        height={48}
+                        width={48}
+                        className="rounded-full h-[48px] w-[48px]"
+                    />
+                    <div>
+                        <h1>{article.title}</h1>
+                        <div className="text-sm text-english-violet">
+                            Published{' '}
+                            {article.date.toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })}
+                        </div>
+                    </div>
                 </div>
                 {article.content}
             </div>
