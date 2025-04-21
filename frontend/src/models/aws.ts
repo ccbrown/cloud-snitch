@@ -156,5 +156,10 @@ export const aws = createModel<RootModel>()({
                 dispatch.reports.removeReportsByAwsIntegrationId(payload.id);
             }
         },
+        async fetchAccessReportByTeamAndAccountId(payload: { teamId: string; accountId: string }, state) {
+            const api = new AwsApi(apiConfiguration(state.api));
+            const resp = await api.getAWSAccessReport(payload);
+            return resp;
+        },
     }),
 });

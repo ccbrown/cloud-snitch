@@ -613,7 +613,11 @@ func (s *Session) GetAWSAccessReportByTeamAndAccountId(ctx context.Context, team
 			time.Sleep(time.Second)
 			continue
 		} else if output.JobStatus != iamtypes.JobStatusTypeCompleted {
-			return nil, s.SanitizedError(fmt.Errorf("failed to generate access report"))
+			var message string
+			if output.ErrorDetails != nil && output.ErrorDetails.Message != nil {
+				message = *output.ErrorDetails.Message
+			}
+			return nil, s.SanitizedError(fmt.Errorf("unexpected job status for access report: %s, error message: %s", string(output.JobStatus), message))
 		}
 
 		for _, detail := range output.AccessDetails {

@@ -318,7 +318,7 @@ const Page = () => {
                             availableEndTime={maxUnfilteredReportEndTime}
                             onChange={setDurationSeconds}
                         />
-                        <Dialog isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} title="Rules">
+                        <Dialog isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} title="Rules" size="xl">
                             <Rules />
                         </Dialog>
                         {canManageScps && (

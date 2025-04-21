@@ -169,7 +169,7 @@ const Page = () => {
     );
 
     return (
-        <div>
+        <div className="flex flex-col gap-4">
             <Dialog isOpen={isInviting} onClose={() => setIsInviting(false)} title="Invite Team Member">
                 <InviteMemberForm
                     onSuccess={() => {
@@ -192,7 +192,7 @@ const Page = () => {
                     />
                 )}
             </Dialog>
-            <h2 className="mb-4 flex items-center gap-2">
+            <h2 className="flex items-center gap-2">
                 Members {memberships && `(${memberships.length})`}{' '}
                 {hasTeamSubscription && (
                     <PlusCircleIcon
@@ -213,7 +213,7 @@ const Page = () => {
             {!memberships ? (
                 <p>Loading...</p>
             ) : (
-                <table className="w-full text-left mt-4">
+                <table className="w-full text-left">
                     <thead className="uppercase text-english-violet">
                         <tr>
                             <th>Email Address</th>
