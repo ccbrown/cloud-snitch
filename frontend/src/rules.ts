@@ -169,6 +169,15 @@ export class RuleSet {
             });
         }
 
+        if (policy.Statement.length === 0) {
+            policy.Statement.push({
+                Sid: 'NoOp',
+                Effect: 'Allow',
+                Action: 'sts:GetCallerIdentity',
+                Resource: '*',
+            });
+        }
+
         return policy;
     }
 }

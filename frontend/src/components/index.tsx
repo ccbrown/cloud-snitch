@@ -7,6 +7,7 @@ export { DurationDropdown } from './DurationDropdown';
 export { ErrorMessage } from './ErrorMessage';
 export { type Filter, FilterDropdown } from './FilterDropdown';
 export { GitHubIcon } from './GitHubIcon';
+export { InfoMessage } from './InfoMessage';
 export { Logo } from './Logo';
 export { Markdown } from './Markdown';
 export { MascotBox } from './MascotBox';

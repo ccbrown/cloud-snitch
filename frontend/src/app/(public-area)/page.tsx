@@ -31,7 +31,10 @@ const Page = () => {
                                 to the next level.
                             </p>
                             <p>
-                                Cloud Snitch provides a sleek and intuitive way of exploring your AWS account activity.
+                                Cloud Snitch provides a sleek and intuitive way of exploring your AWS account activity
+                                along with controls to help you adopt best practices and meet compliance needs.
+                            </p>
+                            <p>
                                 It&apos;s a great addition to any toolbox, regardless of if you&apos;re a hobbyist
                                 that&apos;s just getting started with the cloud or a large enterprise with complex and
                                 mature cloud infrastructure.
@@ -55,8 +58,8 @@ const Page = () => {
                         </Link>
                     </h2>
                     <p className="text-sm mt-4">
-                        Cloud Snitch aims to do just one thing well: Enlighten you as to what&apos;s happening in your
-                        cloud.
+                        Cloud Snitch aims to do just one thing well: Make sure nothing happens in your cloud without
+                        your knowledge.
                     </p>
                     <p className="text-sm mt-4">Check out our features to learn how we do it.</p>
                     <div className="grow" />
