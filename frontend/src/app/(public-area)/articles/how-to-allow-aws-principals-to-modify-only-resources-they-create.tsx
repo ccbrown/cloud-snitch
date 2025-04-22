@@ -167,8 +167,9 @@ const article = {
                 for you.
             </p>
             <p>
-                Unfortunately, there&apos;s no equivalent to `ec2:CreateAction` for service control policies. In fact,
-                the vast majority of resources in AWS don&apos;t have an equivalent condition that can be used.
+                Unfortunately, there&apos;s no equivalent to <code className="codeinline">ec2:CreateAction</code> for
+                service control policies. In fact, the vast majority of resources in AWS don&apos;t have an equivalent
+                condition that can be used.
             </p>
             <p>
                 However, if we dig deep, we can unlock a secret jutsu that works for any AWS resource that supports
