@@ -16,6 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+    metadataBase: process.env.NEXT_PUBLIC_CDN_URL ? new URL(process.env.NEXT_PUBLIC_CDN_URL) : undefined,
+    openGraph: {
+        images: ['/images/opengraph.png'],
+    },
+    robots: process.env.NEXT_PUBLIC_NO_INDEX
+        ? {
+              index: false,
+              follow: false,
+          }
+        : undefined,
     title: {
         template: '%s | Cloud Snitch',
         default: 'Cloud Snitch',

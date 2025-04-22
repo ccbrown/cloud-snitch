@@ -21,6 +21,7 @@ interface Props {
     pricing: Pricing;
     stripeEventSourceName?: string;
     userRegistrationAllowlist?: string[];
+    noIndex?: boolean;
 }
 
 export class Environment {
@@ -72,6 +73,7 @@ export class Environment {
                 stripeSecretKeySecretName: globalBaseStack.stripeSecretKeySecretName,
                 triggerReportGeneration: region === props.regions[0],
                 userRegistrationAllowlist: props.userRegistrationAllowlist,
+                noIndex: props.noIndex,
             });
             regionalStacks.push(regionalStack);
             regionalStack.addDependency(globalBaseStack);

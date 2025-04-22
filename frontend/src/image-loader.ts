@@ -1,5 +1,3 @@
-'use client';
-
 export default function imageLoader({ src }: { src: string }) {
     if (!src.startsWith('/')) {
         return src;
