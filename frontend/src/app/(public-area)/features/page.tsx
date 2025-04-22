@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const Page = () => {
     return (
         <div className="flex flex-col gap-4 [&_p]:my-4">
-            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg md:grid md:grid-flow-col md:auto-cols-fr lg:auto-cols-[3fr_2fr]">
                 <div className="pr-8">
                     <h1>
                         <span className="text-amethyst-gradient">Explore Activity</span> 🗺️
@@ -35,7 +35,7 @@ const Page = () => {
                     />
                 </div>
             </div>
-            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg md:grid md:grid-flow-col md:auto-cols-fr lg:auto-cols-[3fr_2fr]">
                 <div className="pr-8">
                     <h1>
                         <span className="text-light-coral-gradient">Collaborate With Teammates</span> 🤝
@@ -54,7 +54,7 @@ const Page = () => {
                     />
                 </div>
             </div>
-            <div className="translucent-snow p-4 rounded-lg lg:grid lg:grid-flow-col lg:auto-cols-fr">
+            <div className="translucent-snow p-4 rounded-lg md:grid md:grid-flow-col md:auto-cols-fr lg:auto-cols-[3fr_2fr]">
                 <div className="pr-8">
                     <h1>
                         <span className="text-amethyst-gradient">Expose Bugs and Suspicious Behavior</span> 👾
@@ -71,6 +71,27 @@ const Page = () => {
                         src="/images/expose.png"
                         alt="Expose Bugs and Suspicious Behavior"
                         width={1208}
+                        height={800}
+                        className="rounded-lg border-1 border-platinum"
+                    />
+                </div>
+            </div>
+            <div className="translucent-snow p-4 rounded-lg md:grid md:grid-flow-col md:auto-cols-fr lg:auto-cols-[3fr_2fr]">
+                <div className="pr-8">
+                    <h1>
+                        <span className="text-light-coral-gradient">Defend in Depth</span> 🛡️
+                    </h1>
+                    <p>
+                        Generate or manually configure service control policies for your accounts to help you enforce
+                        least privilege access and meet compliance requirements.
+                    </p>
+                    <p>Preview service control policies and apply them with the click of a button.</p>
+                </div>
+                <div>
+                    <Image
+                        src="/images/defend.png"
+                        alt="Expose Bugs and Suspicious Behavior"
+                        width={1388}
                         height={800}
                         className="rounded-lg border-1 border-platinum"
                     />

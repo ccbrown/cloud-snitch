@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 
 import { awsServices } from '@/aws';
-import { Button, ChipEditor, Dialog, ErrorMessage, SuccessMessage, SyntaxHighlighter } from '@/components';
+import { Button, ChipEditor, Dialog, ErrorMessage, InfoMessage, SuccessMessage, SyntaxHighlighter } from '@/components';
 import { AWSAccount } from '@/generated/api';
 import { useAwsRegions, useCurrentTeamId, useManagedAwsScp, useTeamAwsAccountsMap } from '@/hooks';
 import { RuleSet } from '@/rules';
@@ -72,9 +72,13 @@ interface AccountPageProps {
     onBack: () => void;
 }
 
+interface Message {
+    type: 'error' | 'info' | 'success';
+    message: string;
+}
+
 const AccountPage = ({ account, onBack }: AccountPageProps) => {
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [message, setMessage] = useState<Message | null>(null);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const dispatch = useDispatch();
@@ -108,8 +112,7 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                 return;
             }
             setIsLoadingSuggestions(true);
-            setErrorMessage('');
-            setSuccessMessage('');
+            setMessage(null);
 
             try {
                 const [reports, awsAccessReport] = await Promise.all([
@@ -138,26 +141,29 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                 }
 
                 setRuleSet(ruleSet);
-                setSuccessMessage(
-                    'Based on your recent account activity, we recommend the following rules. Please review them carefully and add or remove items as needed.',
+                setMessage(
+                    scpRuleSet && ruleSet.equal(scpRuleSet)
+                        ? {
+                              type: 'success',
+                              message: 'Your rules are already up to date.',
+                          }
+                        : {
+                              type: 'info',
+                              message:
+                                  'Based on your recent account activity, the following rules are recommended. Please review them carefully and add or remove items as needed.',
+                          },
                 );
             } catch (err) {
-                setErrorMessage(err instanceof Error ? err.message : 'An unknown error occurred.');
+                setMessage({
+                    type: 'error',
+                    message: err instanceof Error ? err.message : 'An unknown error occurred.',
+                });
             } finally {
                 setIsLoadingSuggestions(false);
             }
         };
         impl();
-    }, [
-        isLoadingSuggestions,
-        setIsLoadingSuggestions,
-        dispatch,
-        teamId,
-        account,
-        setErrorMessage,
-        setSuccessMessage,
-        setRuleSet,
-    ]);
+    }, [isLoadingSuggestions, setIsLoadingSuggestions, dispatch, teamId, account, setMessage, setRuleSet, scpRuleSet]);
 
     return (
         <div className="flex flex-col gap-4">
@@ -179,8 +185,9 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                         </div>
                     </div>
 
-                    {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-                    {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+                    {message?.type === 'error' && <ErrorMessage>{message.message}</ErrorMessage>}
+                    {message?.type === 'info' && <InfoMessage>{message.message}</InfoMessage>}
+                    {message?.type === 'success' && <SuccessMessage>{message.message}</SuccessMessage>}
 
                     <div className="border border-english-violet/60 bg-white/20 text-sm rounded-lg p-2 flex flex-col gap-2">
                         <div>
@@ -253,7 +260,17 @@ const AccountPage = ({ account, onBack }: AccountPageProps) => {
                     </div>
 
                     <Dialog isOpen={isPreviewing} onClose={() => setIsPreviewing(false)} title="Policy Preview">
-                        <PolicyPreview account={account} ruleSet={ruleSet} onSuccess={() => setIsPreviewing(false)} />
+                        <PolicyPreview
+                            account={account}
+                            ruleSet={ruleSet}
+                            onSuccess={() => {
+                                setMessage({
+                                    type: 'success',
+                                    message: 'Policy applied successfully.',
+                                });
+                                setIsPreviewing(false);
+                            }}
+                        />
                     </Dialog>
                     <Button disabled={!hasChanges} label="Preview Policy" onClick={() => setIsPreviewing(true)} />
                 </>
@@ -298,17 +315,16 @@ export const Rules = () => {
             <Transition show={!account}>
                 <div className={pageClassName}>
                     <p>
-                        You can use Cloud Snitch to enforce rules for the following AWS accounts. Cloud Snitch does this
-                        by attaching{' '}
+                        You can use Cloud Snitch to enforce rules for the following AWS accounts via{' '}
                         <Link
                             href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
                             className="external-link"
                             rel="noopener noreferrer"
                             target="_blank"
                         >
-                            Service Control Policies
-                        </Link>{' '}
-                        to accounts.
+                            service control policies
+                        </Link>
+                        .
                     </p>
                     <div className="flex flex-col max-h-[50vh] overflow-auto">
                         {sortedAccounts &&

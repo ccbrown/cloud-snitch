@@ -32,6 +32,12 @@ Errors are highlighted, so you can quickly spot suspicious behavior or bugs in y
 
 Take the investigation further with quick links into to your CloudTrail event history.
 
+![Defend](design/readme/defend.png)
+
+Generate or manually configure service control policies for your accounts to help you enforce least privilege access and meet compliance requirements.
+
+Preview service control policies and apply them with the click of a button.
+
 ## Open Source or SaaS
 
 Cloud Snitch is open sourced under the MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT) so if you're feeling adventurous, you can deploy it directly to your own cloud. Alternatively, you can get up and running in under 5 minutes with an individual or team plan at [cloudsnitch.io](https://cloudsnitch.io).
