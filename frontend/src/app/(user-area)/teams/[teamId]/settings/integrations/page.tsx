@@ -44,10 +44,12 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
                 input: {
                     name,
                     roleArn,
-                    cloudtrailTrail: {
-                        s3BucketName,
-                        s3KeyPrefix,
-                    },
+                    cloudtrailTrail: s3BucketName
+                        ? {
+                              s3BucketName,
+                              s3KeyPrefix,
+                          }
+                        : undefined,
                     getAccountNamesFromOrganizations,
                     manageScps,
                     queueReportGeneration,
