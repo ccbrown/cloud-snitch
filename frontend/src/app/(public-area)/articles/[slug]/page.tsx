@@ -1,5 +1,5 @@
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,9 +15,10 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> {
     const { slug } = await params;
     const article = articles[slug];
+    const previousImages = (await parent).openGraph?.images || [];
 
     return {
         title: article.title,
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description: article.description,
             type: 'article',
             publishedTime: article.date.toISOString(),
+            images: previousImages,
         },
     };
 }

@@ -31,6 +31,7 @@ new Environment(app, {
     stripePublishableKey:
         'pk_test_51R8r2g2ejpbHZUu9RxWKmyDJTK7amXkB4vE5nRhrd0qvWCnViJsazl9oNjM144gwopnJi1zi3abUk3W4qEk7aWLy00fVUZIeTO',
     userRegistrationAllowlist: ['.*@ccb\\.sh', '.*@paragoncybersecurity\\.sh'],
+    noIndex: true,
 });
 
 new Environment(app, {

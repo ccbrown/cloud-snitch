@@ -57,6 +57,7 @@ interface Props extends StackProps {
     stripeSecretKeySecretName: string;
     triggerReportGeneration?: boolean;
     userRegistrationAllowlist?: string[];
+    noIndex?: boolean;
 }
 
 export class RegionalStack extends Stack {
@@ -330,6 +331,7 @@ export class RegionalStack extends Stack {
                 NEXT_PUBLIC_CDN_URL: `https://${s3BucketDistDomainName}/public/frontend`,
                 NEXT_PUBLIC_PUBLIC_S3_BUCKET_NAME: publicS3BucketName,
                 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: props.stripePublishableKey,
+                NEXT_PUBLIC_NO_INDEX: props.noIndex ? 'true' : '',
                 OPENAPI_YAML: fs.readFileSync(path.join(__dirname, '../../backend/api/apispec/openapi.yaml'), 'utf8'),
             },
             directory: path.join(__dirname, '../../frontend'),
