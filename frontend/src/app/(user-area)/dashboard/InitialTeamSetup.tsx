@@ -49,7 +49,7 @@ const JoinTeamForm = () => {
                       ? "You currently have no team invites. If you'd like to join an existing team, ask a team administrator to invite you."
                       : `You have ${invites.length} team invite${invites.length === 1 ? '' : 's'}:`}
             </p>
-            {invites?.length && (
+            {invites?.length > 0 && (
                 <table className="w-full text-left">
                     <thead className="uppercase text-english-violet">
                         <tr>

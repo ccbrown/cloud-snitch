@@ -376,7 +376,7 @@ const Page = () => {
                                             Go to your team&apos;s{' '}
                                             <Link href={`/teams/${teamId}/settings/integrations`} className="link">
                                                 integration settings
-                                            </Link>
+                                            </Link>{' '}
                                             to configure ingestion from your AWS account.
                                         </p>
                                     </>
