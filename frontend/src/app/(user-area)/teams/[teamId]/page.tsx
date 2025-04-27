@@ -252,13 +252,14 @@ const Page = () => {
         zoom,
     ]);
 
-    const teamAwsIntegrationsIfAdminAndNoReports = useTeamAwsIntegrations(
-        isTeamAdmin && teamReports && teamReports.length === 0 ? teamId : undefined,
+    const needsData = teamReports && teamReports.length === 0;
+    const teamAwsIntegrationsIfAdminAndNeedsData = useTeamAwsIntegrations(
+        isTeamAdmin && needsData ? teamId : undefined,
     );
     const needsSubscriptionSetup = team && !team.entitlements.individualFeatures;
     const needsAwsIntegrationSetup =
-        teamAwsIntegrationsIfAdminAndNoReports && teamAwsIntegrationsIfAdminAndNoReports.length === 0;
-    const needsSetup = needsSubscriptionSetup || needsAwsIntegrationSetup;
+        teamAwsIntegrationsIfAdminAndNeedsData && teamAwsIntegrationsIfAdminAndNeedsData.length === 0;
+    const needsSetup = needsSubscriptionSetup || needsAwsIntegrationSetup || needsData;
 
     const canManageScps =
         teamAwsAccountsMap && [...teamAwsAccountsMap.values()].some((account) => account.canManageScps);
@@ -355,7 +356,7 @@ const Page = () => {
                             <div className="flex flex-col gap-4 translucent-snow border border-platinum rounded-xl p-8 max-w-2xl">
                                 <h1>Welcome!</h1>
                                 <p>This is the dashboard for your team.</p>
-                                <p>There&apos;s nothing here, but we can fix that!</p>
+                                <p>There&apos;s currently nothing here, but we can fix that!</p>
                                 {needsSubscriptionSetup && (
                                     <>
                                         <p className="uppercase label">Activate a subscription</p>
@@ -369,7 +370,7 @@ const Page = () => {
                                         </p>
                                     </>
                                 )}
-                                {needsAwsIntegrationSetup && (
+                                {needsAwsIntegrationSetup ? (
                                     <>
                                         <p className="uppercase label">Integrate with your AWS account</p>
                                         <p>
@@ -380,7 +381,30 @@ const Page = () => {
                                             to configure ingestion from your AWS account.
                                         </p>
                                     </>
-                                )}
+                                ) : needsData ? (
+                                    <>
+                                        <p className="uppercase label">Wait for data</p>
+                                        <p>
+                                            If you&apos;ve recently configured your AWS integration and chose to
+                                            backfill data, it will be available here shortly.
+                                        </p>
+                                        <p>
+                                            If you did not choose to backfill data, it will take up to 24 hours for data
+                                            to appear.
+                                        </p>
+                                        <p>
+                                            If data does not appear as expected, please double check your team&apos;s{' '}
+                                            <Link href={`/teams/${teamId}/settings/integrations`} className="link">
+                                                integration settings
+                                            </Link>{' '}
+                                            or{' '}
+                                            <Link href="/contact" className="link">
+                                                contact us
+                                            </Link>{' '}
+                                            for help.
+                                        </p>
+                                    </>
+                                ) : null}
                             </div>
                         </div>
                     )}

@@ -29,7 +29,7 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
     const [getAccountNamesFromOrganizations, setGetAccountNamesFromOrganizations] = useState(false);
     const [manageScps, setManageScps] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
-    const [queueReportGeneration, setQueueReportGeneration] = useState(false);
+    const [queueReportGeneration, setQueueReportGeneration] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
 
     const doCreate = async () => {

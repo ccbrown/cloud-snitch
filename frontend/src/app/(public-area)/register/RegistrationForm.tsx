@@ -52,8 +52,8 @@ export const RegistrationForm = () => {
     ) : (
         <>
             <p>
-                Provide your email address and agree to let us do stuff, and we&apos;ll send you a verification email to
-                create your account and get started. 🚀
+                Provide your email address and we&apos;ll send you a verification email to create your account and get
+                started. 🚀
             </p>
             <p>
                 Already have an account?{' '}
