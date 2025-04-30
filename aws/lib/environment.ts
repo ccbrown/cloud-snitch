@@ -80,12 +80,14 @@ export class Environment {
         }
 
         const globalApexStack = new GlobalApexStack(scope, `global-apex-${props.slug}`, {
+            allRegions: props.regions,
             cloudfrontDistributionId: globalBaseStack.cloudfrontDistributionId,
             crossRegionReferences: true,
             env: {
                 account: props.accountId,
                 region: 'us-east-1',
             },
+            envSlug: props.slug,
             stackName: `cloud-snitch-global-apex-${props.slug}`,
         });
         regionalStacks.forEach((s) => globalApexStack.addDependency(s));

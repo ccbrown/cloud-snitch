@@ -71,3 +71,7 @@ Typically an update is done by deploying all the stacks like so:
 ```bash
 AWS_PROFILE=cloud-snitch-dev npx cdk deploy '*-dev'
 ```
+
+## Observability
+
+The CDK deploys a CloudWatch dashboard in us-east-1 with key metrics for all regions.
