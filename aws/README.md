@@ -75,3 +75,5 @@ AWS_PROFILE=cloud-snitch-dev npx cdk deploy '*-dev'
 ## Observability
 
 The CDK deploys a CloudWatch dashboard in us-east-1 with key metrics for all regions.
+
+Alarms are created in each region and will send notifications to an SNS topic in each region. To receive notifications, you should subscribe to the SNS topic in each region.
