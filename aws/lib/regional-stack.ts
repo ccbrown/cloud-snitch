@@ -5,6 +5,8 @@ import {
     aws_certificatemanager as acm,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
+    aws_cloudwatch as cw,
+    aws_cloudwatch_actions as cw_actions,
     aws_ecr_assets as ecr_assets,
     aws_events as events,
     aws_events_targets as events_targets,
@@ -16,6 +18,7 @@ import {
     aws_s3 as s3,
     aws_s3_deployment as s3deploy,
     aws_ses as ses,
+    aws_sns as sns,
     aws_sqs as sqs,
     aws_route53_targets as route53_targets,
     Duration,
@@ -63,6 +66,8 @@ interface Props extends StackProps {
 export class RegionalStack extends Stack {
     constructor(scope: Construct, id: string, props: Props) {
         super(scope, id, props);
+
+        const alarmTopic = new sns.Topic(this, 'AlarmTopic');
 
         // Unfortunately CloudFormation templates must be made available via public S3 bucket:
         // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudformation-stack.html#cfn-cloudformation-stack-templateurl
@@ -123,6 +128,12 @@ export class RegionalStack extends Stack {
         const dlq = new sqs.Queue(this, 'DeadLetterQueue', {
             queueName: `${queueName}-DLQ`,
         });
+        const dlqAlarm = new cw.Alarm(this, 'DeadLetterQueueAlarm', {
+            metric: dlq.metricApproximateNumberOfMessagesVisible(),
+            threshold: 1,
+            evaluationPeriods: 1,
+        });
+        dlqAlarm.addAlarmAction(new cw_actions.SnsAction(alarmTopic));
 
         const queue = new sqs.Queue(this, 'Queue', {
             deadLetterQueue: {
@@ -255,6 +266,12 @@ export class RegionalStack extends Stack {
             const dlq = new sqs.Queue(this, 'StripeEventHandlerDLQ', {
                 queueName: `CloudSnitchStripeEventHandler-DLQ`,
             });
+            const dlqAlarm = new cw.Alarm(this, 'StripeEventHandlerDLQAlarm', {
+                metric: dlq.metricApproximateNumberOfMessagesVisible(),
+                threshold: 1,
+                evaluationPeriods: 1,
+            });
+            dlqAlarm.addAlarmAction(new cw_actions.SnsAction(alarmTopic));
 
             const stripeEventHandler = new lambda.DockerImageFunction(this, 'StripeEventHandler', {
                 architecture: lambda.Architecture.ARM_64,
