@@ -176,7 +176,7 @@ const article = {
     },
     description:
         'Here are some reliable, but little-known ways to programmatically get a list of all AWS regions and services.',
-    date: new Date(Date.parse('2025-05-10T12:05:00-04:00')),
+    date: new Date(Date.parse('2025-05-11T12:05:00-04:00')),
     content: (
         <>
             <p>
