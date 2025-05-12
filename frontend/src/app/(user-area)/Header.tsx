@@ -5,12 +5,14 @@ import {
     ArrowRightStartOnRectangleIcon,
     ChevronDownIcon,
     CogIcon,
+    ComputerDesktopIcon,
     UserCircleIcon,
     UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { UserRole } from '@/generated/api';
 import { Logo } from '@/components';
 import { useCurrentUser } from '@/hooks';
 import { useDispatch } from '@/store';
@@ -68,6 +70,15 @@ export const Header = (props: Props) => {
                                 <UserGroupIcon className="h-[1.5rem]" />
                                 <span>Teams</span>
                             </Link>
+                            {currentUser?.role === UserRole.Administrator && (
+                                <Link
+                                    className="whitespace-nowrap flex items-center gap-2 cursor-pointer hover:bg-white/80 p-2 rounded-md"
+                                    href="/control-panel"
+                                >
+                                    <ComputerDesktopIcon className="h-[1.5rem]" />
+                                    <span>Control Panel</span>
+                                </Link>
+                            )}
                             <div
                                 className="whitespace-nowrap flex items-center gap-2 cursor-pointer hover:bg-white/80 p-2 rounded-md"
                                 onClick={() => signOut()}
