@@ -139,6 +139,13 @@ export const teams = createModel<RootModel>()({
             });
             dispatch.teams.put(resp);
         },
+        async fetchAll(_payload: void, state) {
+            const api = new TeamApi(apiConfiguration(state.api));
+            const resp = await api.getTeams();
+            resp.forEach((team) => {
+                dispatch.teams.put(team);
+            });
+        },
         async fetchBillingProfile(id: string, state) {
             const api = new TeamApi(apiConfiguration(state.api));
             try {
