@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { SyntaxHighlighter } from '@/components/SyntaxHighlighter';
 
 const regionListExample = [
@@ -168,6 +170,25 @@ const accessReportExample = [
     '}',
 ];
 
+const ec2DescribeRegionsExample = [
+    'aws ec2 describe-regions --all-regions',
+    '{',
+    '    "Regions": [',
+    '        {',
+    '            "Endpoint": "ec2.ap-south-2.amazonaws.com",',
+    '            "RegionName": "ap-south-2",',
+    '            "OptInStatus": "not-opted-in"',
+    '        },',
+    '        {',
+    '            "Endpoint": "ec2.ap-south-1.amazonaws.com",',
+    '            "RegionName": "ap-south-1",',
+    '            "OptInStatus": "opt-in-not-required"',
+    '        },',
+    '        ...',
+    '    ]',
+    '}',
+];
+
 const article = {
     title: 'How To Programmatically Get a List of All AWS Regions and Services',
     author: {
@@ -175,7 +196,7 @@ const article = {
         image: '/images/chris.jpg',
     },
     description:
-        'Here are some reliable, but little-known ways to programmatically get a list of all AWS regions and services.',
+        'Here are the most reliable ways to programmatically get information about AWS regions and services from AWS.',
     date: new Date(Date.parse('2025-05-11T12:05:00-04:00')),
     content: (
         <>
@@ -186,8 +207,9 @@ const article = {
                 out-dated.
             </p>
             <p>
-                Fortunately, there&apos;s a way to get what we need directly from AWS. This makes it far more practical
-                to maintain up-to-date databases of regions and services.
+                Fortunately, there are several ways to get what we need directly from AWS. This makes it far more
+                practical to maintain up-to-date databases of regions and services. This article briefly goes over the
+                most common ways to reliably get this information from AWS.
             </p>
             <h2>SSM Parameters for AWS Global Infrastructure</h2>
             <p>
@@ -221,6 +243,32 @@ const article = {
                 because it&apos;s been locked down using Cloud Snitch. For an unrestricted account, your report would
                 contain several hundred services.
             </p>
+            <h2>Listing AWS Regions Via the EC2 DescribeRegions API</h2>
+            <p>
+                You also have the option of using the EC2{' '}
+                <Link
+                    href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeRegions.html"
+                    className="external-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    DescribeRegions
+                </Link>{' '}
+                API to get a list of all available regions:
+            </p>
+            <SyntaxHighlighter language="bash">{ec2DescribeRegionsExample.join('\n')}</SyntaxHighlighter>
+            <p>
+                And similarly, you can use the{' '}
+                <Link
+                    href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeAvailabilityZones.html"
+                    className="external-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    DescribeAvailabilityZones
+                </Link>{' '}
+                API to get a list of all available availability zones within each region.
+            </p>
         </>
     ),
     relatedLinks: [
@@ -231,6 +279,14 @@ const article = {
         {
             title: 'GenerateOrganizationsAccessReport',
             url: 'https://docs.aws.amazon.com/IAM/latest/APIReference/API_GenerateOrganizationsAccessReport.html',
+        },
+        {
+            title: 'DescribeRegions',
+            url: 'https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeRegions.html',
+        },
+        {
+            title: 'DescribeAvailabilityZones',
+            url: 'https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeAvailabilityZones.html',
         },
     ],
 };
