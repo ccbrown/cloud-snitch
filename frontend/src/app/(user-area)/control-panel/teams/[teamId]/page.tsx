@@ -63,7 +63,7 @@ const Page = () => {
                                 <td>
                                     {integration.cloudtrailTrail ? (
                                         <Tooltip
-                                            content={`s3://${integration.cloudtrailTrail.s3BucketName}${integration.cloudtrailTrail.s3KeyPrefix}`}
+                                            content={`s3://${integration.cloudtrailTrail.s3BucketName}${integration.cloudtrailTrail.s3KeyPrefix || ''}`}
                                         >
                                             <span className="hoverable">Yes</span>
                                         </Tooltip>
