@@ -17,6 +17,9 @@ interface CreateIntegrationFormProps {
     onSuccess: () => void;
 }
 
+const startsWithAwsLogsRegex = /^\/?AWSLogs($|\/)/;
+const includesAwsLogsRegex = /(^|\/)AWSLogs($|\/)/;
+
 const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
     const dispatch = useDispatch();
 
@@ -122,6 +125,20 @@ const CreateIntegrationForm = (props: CreateIntegrationFormProps) => {
                         onChange={setS3BucketName}
                     />
                     <TextField disabled={isBusy} label="S3 Key Prefix" value={s3KeyPrefix} onChange={setS3KeyPrefix} />
+                    {s3KeyPrefix &&
+                        (startsWithAwsLogsRegex.test(s3KeyPrefix) ? (
+                            <p className="text-xs text-indian-red">
+                                Cloud Snitch will automatically search for the &quot;AWSLogs&quot; directory in your S3
+                                bucket. This field is only necessary if you have a custom prefix for your CloudTrail
+                                logs. Otherwise, you should leave it empty.
+                            </p>
+                        ) : includesAwsLogsRegex.test(s3KeyPrefix) ? (
+                            <p className="text-xs text-indian-red">
+                                Cloud Snitch will automatically search for the &quot;AWSLogs&quot; directory in your S3
+                                bucket. This field should only contain the custom prefix that you specified when
+                                creating the trail, if any.
+                            </p>
+                        ) : null)}
                     <Checkbox
                         disabled={isBusy}
                         checked={getAccountNamesFromOrganizations}

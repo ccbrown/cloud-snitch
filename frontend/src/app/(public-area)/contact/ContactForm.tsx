@@ -41,7 +41,10 @@ export const ContactForm = () => {
     };
 
     return success ? (
-        <SuccessMessage>Message submitted! We&apos;ll be in touch soon.</SuccessMessage>
+        <SuccessMessage>
+            Message submitted! We&apos;ll be in touch soon. If you don&apos;t see any emails from us within a few
+            business days, please be sure to check your spam folder.
+        </SuccessMessage>
     ) : (
         <>
             <p>
