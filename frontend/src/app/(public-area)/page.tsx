@@ -70,15 +70,28 @@ const Page = () => {
                         </Link>
                     </div>
                 </div>
-                <div className="flex-1 flex flex-col bg-dark-purple text-snow rounded-lg p-4">
-                    <h2>
-                        <Link href="/articles/capital-one-data-breach" className="link">
-                            😱{' '}
-                            <span className="text-amethyst-gradient">Capital One Data Breach – A Cautionary Tale</span>
-                        </Link>
-                    </h2>
-                    <div className="text-sm text-amethyst">
-                        What&apos;s in your <s>wallet</s> cloud?
+                <div className="flex-1 flex flex-col translucent-snow rounded-lg p-4">
+                    <div className="flex gap-4 items-center">
+                        <Image
+                            src="/images/chris.jpg"
+                            alt={`By Chris`}
+                            height={48}
+                            width={48}
+                            className="rounded-full h-[48px] w-[48px]"
+                        />
+                        <div>
+                            <h2>
+                                <Link href="/articles/capital-one-data-breach" className="link">
+                                    <span className="text-amethyst-gradient">
+                                        Capital One Data Breach – A Cautionary Tale
+                                    </span>{' '}
+                                    😱
+                                </Link>
+                            </h2>
+                            <div className="text-sm text-amethyst">
+                                What&apos;s in your <s>wallet</s> cloud?
+                            </div>
+                        </div>
                     </div>
                     <p className="text-sm mt-4">
                         Capital One lost hundreds of millions after being notified by a third party of an intruder that
@@ -88,7 +101,7 @@ const Page = () => {
                     <div className="flex mt-8 items-center gap-2">
                         <Link
                             href="/articles/capital-one-data-breach"
-                            className="snow-button flex grow-0 items-center whitespace-nowrap"
+                            className="button flex grow-0 items-center whitespace-nowrap"
                         >
                             Read More
                             <ChevronRightIcon className="h-4 w-4 ml-2" />
