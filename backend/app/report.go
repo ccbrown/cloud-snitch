@@ -263,6 +263,8 @@ func (a *App) GenerateAWSCloudTrailReport(ctx context.Context, input GenerateAWS
 	integration, err := a.store.GetAWSIntegrationById(ctx, input.AWSIntegrationId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get aws integration: %w", err)
+	} else if integration == nil {
+		return nil, nil
 	}
 
 	output, err := a.sts.AssumeRole(ctx, &sts.AssumeRoleInput{
