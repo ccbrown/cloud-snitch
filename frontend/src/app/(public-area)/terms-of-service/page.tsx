@@ -41,7 +41,7 @@ const Page = () => {
                         violates the Agreement, you and that person or entity agree to be responsible to us.
                     </p>
                     <p>
-                        Your agreement is with Paragon Cybersecurity LLC (&quot;Paragon Cybersecurity&quot;), a Delaware
+                        Your agreement is with Paragon Technomancy LLC (&quot;Paragon Technomancy&quot;), a Georgia
                         limited liability company.
                     </p>
                     <h2>2. Your Account</h2>
@@ -179,7 +179,7 @@ const Page = () => {
                         </li>
                         <li>
                             Will not infringe or misappropriate the intellectual property rights of Paragon
-                            Cybersecurity or any third party;
+                            Technomancy or any third party;
                         </li>
                         <li>
                             Will not overburden or interfere with our systems or impose an unreasonable or

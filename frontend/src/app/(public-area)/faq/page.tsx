@@ -39,7 +39,7 @@ const FAQ = [
         answer: (
             <div>
                 <p>
-                    Cloud Snitch is developed by Paragon Cybersecurity, an LLC owned by tech and security enthusiast
+                    Cloud Snitch is developed by Paragon Technomancy, an LLC owned by tech and security enthusiast
                     Chris Brown. Feel free to{' '}
                     <Link href="https://www.linkedin.com/in/ccbrown1" target="_blank" className="external-link">
                         connect with me on LinkedIn

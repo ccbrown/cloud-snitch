@@ -22,7 +22,7 @@ export default function Layout({
                 </div>
                 <footer className="bg-dark-purple text-snow px-4">
                     <div className="max-w-7xl mx-auto py-8 flex flex-col lg:flex-row gap-2 text-sm lg:min-w-5xl">
-                        <div className="grow basis-0">&copy; Paragon Cybersecurity, LLC. All Rights Reserved.</div>
+                        <div className="grow basis-0">&copy; Paragon Technomancy, LLC. All Rights Reserved.</div>
                         <div className="flex items-start lg:justify-center font-semibold">
                             <Link href="/contact">Contact Us</Link>
                         </div>

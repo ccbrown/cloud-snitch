@@ -48,7 +48,7 @@ export const ContactForm = () => {
     ) : (
         <>
             <p>
-                Cloud Snitch is developed by Paragon Cybersecurity, a Limited Liability Company formed under Delaware
+                Cloud Snitch is developed by Paragon Technomancy, a Limited Liability Company formed under Georgia
                 jurisdiction.
             </p>
             <p>For inquiries, please fill out the form below and we will get back to you as soon as possible.</p>
