@@ -19,7 +19,7 @@ new Environment(app, {
         'fwIDAQAB',
         '-----END PUBLIC KEY-----',
     ].join('\n'),
-    contactEmailAddress: 'cloudsnitch-dev-support@paragoncybersecurity.sh',
+    contactEmailAddress: 'cloudsnitch-dev-support@paragontechnomancy.com',
     domainName: 'cloud-snitch.ccbrown.dev',
     pricing: {
         individualSubscriptionStripePriceId: 'price_1R9dvs2ejpbHZUu9R4HllgRg',
@@ -30,7 +30,7 @@ new Environment(app, {
     stripeEventSourceName: 'aws.partner/stripe.com/ed_test_61SLFDXYPHDgkHhXb16SIF02BUSQ4aTGPsjUwpTDs8o4',
     stripePublishableKey:
         'pk_test_51R8r2g2ejpbHZUu9RxWKmyDJTK7amXkB4vE5nRhrd0qvWCnViJsazl9oNjM144gwopnJi1zi3abUk3W4qEk7aWLy00fVUZIeTO',
-    userRegistrationAllowlist: ['.*@ccb\\.sh', '.*@paragoncybersecurity\\.sh'],
+    userRegistrationAllowlist: ['.*@ccb\\.sh', '.*@paragontechnomancy\\.com'],
     noIndex: true,
 });
 
@@ -47,7 +47,7 @@ new Environment(app, {
         'PwIDAQAB',
         '-----END PUBLIC KEY-----',
     ].join('\n'),
-    contactEmailAddress: 'support@paragoncybersecurity.sh',
+    contactEmailAddress: 'support@paragontechnomancy.com',
     domainName: 'cloudsnitch.io',
     pricing: {
         individualSubscriptionStripePriceId: 'price_1RBAJAGsawEQFubmUMPpZQ0a',

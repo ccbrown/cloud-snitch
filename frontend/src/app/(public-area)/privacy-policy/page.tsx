@@ -19,7 +19,7 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
                     <p>
-                        Your privacy is critically important to us. At Paragon Cybersecurity, we have a few fundamental
+                        Your privacy is critically important to us. At Paragon Technomancy, we have a few fundamental
                         principles:
                     </p>
 
@@ -165,7 +165,7 @@ const Page = () => {
                             <strong>To protect our Services, our users, and the public.</strong> For example, by
                             detecting security incidents; detecting and protecting against malicious, deceptive,
                             fraudulent, or illegal activity; fighting spam; complying with our legal obligations; and
-                            protecting the rights and property of Paragon Cybersecurity and others, which may result in
+                            protecting the rights and property of Paragon Technomancy and others, which may result in
                             us, for example, declining a transaction or terminating Services.
                         </li>
                         <li>
@@ -179,7 +179,7 @@ const Page = () => {
                         <li>
                             <strong>To communicate with you.</strong> For example, by emailing you to ask for your
                             feedback, share tips for getting the most out of our products, or keep you up to date on
-                            Paragon Cybersecurity; texting you to verify your payment; or calling you to share offers
+                            Paragon Technomancy; texting you to verify your payment; or calling you to share offers
                             and promotions that we think will be of interest to you. If you don&apos;t want to hear from
                             us, you can opt out of marketing communications at any time. (If you opt out, we&apos;ll
                             still send you important updates relating to your account.)
@@ -253,14 +253,14 @@ const Page = () => {
                         <li>
                             <strong>To protect rights, property, and others:</strong> We may disclose information about
                             you when we believe in good faith that disclosure is reasonably necessary to protect the
-                            property or rights of Paragon Cybersecurity, third parties, or the public at large. For
+                            property or rights of Paragon Technomancy, third parties, or the public at large. For
                             example, if we have a good faith belief that there is an imminent danger of death or serious
                             physical injury, we may disclose information related to the emergency without delay.
                         </li>
                         <li>
                             <strong>Business transfers:</strong> In connection with any merger, sale of company assets,
                             or acquisition of all or a portion of our business by another company, or in the unlikely
-                            event that Paragon Cybersecurity goes out of business or enters bankruptcy, user information
+                            event that Paragon Technomancy goes out of business or enters bankruptcy, user information
                             would likely be one of the assets that is transferred or acquired by a third party. If any
                             of these events were to happen, this Privacy Policy would continue to apply to your
                             information and the party receiving your information may continue to use your information,
