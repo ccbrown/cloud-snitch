@@ -214,7 +214,7 @@ const Page = () => {
                 </table>
             )}
             <h2 className="mt-8 mb-4">Password</h2>
-            <Dialog isOpen={isSettingPassword} onClose={() => setIsSettingPassword(false)} title="New Passkey">
+            <Dialog isOpen={isSettingPassword} onClose={() => setIsSettingPassword(false)} title="New Password">
                 <NewPasswordForm onSuccess={() => setIsSettingPassword(false)} />
             </Dialog>
             {!currentUser ? (
