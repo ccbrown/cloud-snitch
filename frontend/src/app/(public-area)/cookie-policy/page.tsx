@@ -5,7 +5,7 @@ import { REVISION } from './revision';
 
 export const metadata: Metadata = {
     title: 'Cookie Policy',
-    description: 'Learn how when, how, and why Cloud Snitch uses cookies.',
+    description: 'Learn when, how, and why Cloud Snitch uses cookies.',
 };
 
 const Page = () => {
