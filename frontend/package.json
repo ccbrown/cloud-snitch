@@ -27,7 +27,7 @@
         "maath": "^0.10.8",
         "maplibre-gl": "^5.2.0",
         "meshline": "^3.3.1",
-        "next": "15.2.1",
+        "next": "^15.2.6",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-map-gl": "^8.0.1",
